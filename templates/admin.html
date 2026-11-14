@@ -1662,7 +1662,7 @@ main{padding:24px 3%!important}
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ student_id: studentId, amount, utr, payment_id: paymentId })
           });
-          pmsg(j.message + " " + j.receipt_url);
+          pmsg(j.message);
           loadPendingPayments();
           loadPortalStudents();
         } catch (e) { pmsg(e.message); }
@@ -1904,11 +1904,11 @@ main{padding:24px 3%!important}
       function printSelectedTwoReceipts() {
         const picks = [...document.querySelectorAll(".twoReceiptPick:checked")];
         if (picks.length !== 2) {
-          pmsg("A4 print ke liye exactly 2 verified receipts select karein.");
+          pmsg("Please select exactly 2 verified receipts for A4 printing.");
           return;
         }
         if (picks[0].dataset.student === picks[1].dataset.student) {
-          pmsg("Do alag students ke receipts select karein.");
+          pmsg("Please select receipts belonging to two different students.");
           return;
         }
         window.open("/api/admin/portal/receipts/print-two.pdf?ids=" +
@@ -1926,7 +1926,7 @@ main{padding:24px 3%!important}
           return;
         }
         if (!files.length && !(form.querySelector("[name=url]").value || "").trim()) {
-          pmsg("Kam se kam ek file select karein ya video URL dein.");
+          pmsg("Please select at least one file or provide a video URL.");
           return;
         }
 

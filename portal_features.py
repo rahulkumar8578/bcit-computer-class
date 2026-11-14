@@ -1002,7 +1002,7 @@ def verify_fee_payment_manual():
                 c.execute("INSERT INTO fee_payments(admission_id,amount,mode,status,reference,payment_date,receipt_token,verified_at) VALUES(?,?,'upi','verified',?,?,?,?)",(sid,amount,utr,date.today().isoformat(),token,datetime.utcnow().isoformat()))
     except (sqlite3.IntegrityError,ValueError):return jsonify(error="The UTR is a duplicate or the payment entry is invalid."),409
     log("payment_verified",f"Student {sid}; amount {amount}; UTR {utr}")
-    return jsonify(message="Payment verified. Remaining fee aur receipt update ho gayi.",receipt_url=f"/api/admin/portal/receipt/{token}.pdf")
+    return jsonify(message="Payment verified successfully. The remaining fee and receipt have been updated.",receipt_url=f"/api/admin/portal/receipt/{token}.pdf")
 
 @portal.get("/api/admin/portal/receipt/<token>.pdf")
 @admin_only
@@ -1057,7 +1057,7 @@ def attendance_batches():
 def create_attendance_batch():
     d=request.get_json(silent=True) or {}; name=str(d.get("name") or "").strip(); ids=d.get("student_ids") or []
     if not name or not isinstance(ids,list) or not ids or len(ids)>15 or len(set(map(str,ids)))!=len(ids):
-        return jsonify(error="Batch name aur 1 se 15 unique students select karein."),400
+        return jsonify(error="Enter a batch name and select 1 to 15 unique students."),400
     try:
         with db() as c:
             resolved=[]
@@ -1718,7 +1718,7 @@ def student_ai_assistant():
             raise last_http_error
         parts=(result.get("candidates") or [{}])[0].get("content",{}).get("parts",[])
         answer="\n".join(x.get("text","") for x in parts if x.get("text")).strip()
-        if not answer: return jsonify(error="AI se jawab nahi mil saka. Thodi der baad dobara try karein."),502
+        if not answer: return jsonify(error="The AI Assistant could not generate a response. Please try again shortly."),502
         return jsonify(answer=answer)
     except urllib.error.HTTPError as exc:
         try:
@@ -1732,7 +1732,7 @@ def student_ai_assistant():
             return jsonify(error="Gemini is temporarily busy. Please try again in a minute."),503
         return jsonify(error="AI service error (HTTP %s). Check API key/model configuration." % exc.code),502
     except (urllib.error.URLError,TimeoutError):
-        return jsonify(error="AI service se connection nahi ho paaya. Internet connection check karke dobara try karein."),502
+        return jsonify(error="Could not connect to the AI service. Please check your internet connection and try again."),502
     except Exception:
         return jsonify(error="The AI Assistant could not respond right now. Please try again later."),502
 
