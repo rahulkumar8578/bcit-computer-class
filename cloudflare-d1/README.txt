@@ -1,0 +1,1 @@
+Flask app.py creates and migrates application tables in the configured D1 database at startup. Do not run an old data dump over an existing D1 database. No existing D1 rows are deleted. admin_activity and file_metadata are local SQLite tables, not D1 tables.

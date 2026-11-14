@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BCIT Admin Login</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:20px;background:#0b1220;font-family:Arial,sans-serif;color:#172033}.card{width:min(100%,420px);background:#fff;border-radius:18px;padding:30px;box-shadow:0 20px 60px #0005}.brand{color:#245be7;font-size:13px;font-weight:800;letter-spacing:2px}.card h1{margin:9px 0 6px;font-size:27px}.muted{color:#657086;font-size:14px;line-height:1.5}label{display:block;font-weight:700;margin:23px 0 8px}input{width:100%;padding:13px 14px;border:1px solid #cbd2df;border-radius:9px;font-size:16px}button{width:100%;margin-top:16px;padding:13px;border:0;border-radius:9px;background:#245be7;color:#fff;font-weight:800;font-size:15px;cursor:pointer}.hint{margin-top:17px;font-size:12px;color:#758096}.error{background:#fff0ee;color:#b42318;border-radius:8px;padding:10px;margin-top:12px;font-size:13px}
+
+/* BCIT blue button theme: all clickable controls */
+button, input[type="button"], input[type="submit"], input[type="reset"], .btn, .tab, a.button, .logout, .verify-btn, .pending-btn {
+  background-color:#245be7 !important; color:#ffffff !important; border-color:#245be7 !important;
+}
+button:hover, input[type="button"]:hover, input[type="submit"]:hover, input[type="reset"]:hover, .btn:hover, .tab:hover, a.button:hover, .logout:hover, .verify-btn:hover, .pending-btn:hover {
+  background-color:#1748c7 !important; color:#ffffff !important; border-color:#1748c7 !important;
+}
+button:disabled, input[type="submit"]:disabled { opacity:.55; cursor:not-allowed; }
+
+
+/* BCIT site-wide font restored to Times New Roman */
+*, *::before, *::after { font-family: "Times New Roman", Times, serif !important; }
+
+/* =========================================================
+   BCIT CROSS-DEVICE RESPONSIVE HARDENING
+   Fluid sizing: small phones through large desktop displays
+   ========================================================= */
+:root { color-scheme: light; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; min-width: 0; }
+html { overflow-x: clip; }
+body { overflow-x: clip; }
+img, video, canvas, iframe, svg { max-width: 100%; }
+img { height: auto; }
+button, input, select, textarea { max-width: 100%; min-width: 0; }
+input, select, textarea { width: 100%; }
+button, .btn, a.button { white-space: normal; overflow-wrap: anywhere; }
+main, section, header, footer, nav, article, aside, form, .wrap, .container, .section,
+.card, .form-card, .panel, .content, .dashboard, .dashboard-content { min-width: 0; max-width: 100%; }
+pre, code { max-width: 100%; overflow-x: auto; }
+table { max-width: 100%; }
+.table-wrap, .table-responsive, .scroll, .table-container { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+th, td { overflow-wrap: anywhere; }
+.flex, .row, .toolbar, .actions, .tabs, .nav-links { min-width: 0; flex-wrap: wrap; }
+.grid, .cards, .stats, .form-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+
+@media (max-width: 900px) {
+  .topbar, header { gap: 12px; flex-wrap: wrap; }
+  .topbar { padding-left: clamp(12px, 3vw, 24px); padding-right: clamp(12px, 3vw, 24px); }
+  .brand { flex: 1 1 260px; }
+  .nav, .nav-links, .topbar nav { max-width: 100%; flex-wrap: wrap; }
+  .section, main.wrap, .wrap { padding-left: clamp(12px, 2.5vw, 24px); padding-right: clamp(12px, 2.5vw, 24px); }
+}
+@media (max-width: 650px) {
+  html { scroll-padding-top: 72px; }
+  .topbar { position: relative; align-items: flex-start; }
+  .brand { width: 100%; flex-basis: 100%; }
+  .nav, .nav-links, .topbar nav, .tabs, .portal-toolbar, .actions, .toolbar {
+    width: 100%; display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .nav a, .nav button, .nav-links a, .topbar nav a { flex: 1 1 auto; text-align: center; }
+  .section, .form-card, .card, .panel, .wrap { padding: 14px !important; }
+  h1 { font-size: clamp(21px, 6vw, 30px); line-height: 1.2; }
+  h2 { font-size: clamp(19px, 5vw, 26px); line-height: 1.25; }
+  h3 { font-size: clamp(17px, 4.5vw, 22px); }
+  p { overflow-wrap: anywhere; }
+  .cards, .stats, .attendance-summary, .batch-stats, .form-grid { grid-template-columns: 1fr !important; }
+  .tabs button, .tab, .btn, button { max-width: 100%; }
+  .portal-toolbar input, .portal-toolbar select { min-width: 0; width: 100%; }
+  .verify-filter { grid-template-columns: 1fr !important; }
+  .student-choice-grid, .batch-grid { grid-template-columns: 1fr !important; }
+  .chat-input { flex-wrap: wrap; }
+  .chat-input input, .chat-input button { width: 100%; flex-basis: 100%; }
+  iframe { width: 100% !important; max-width: 100% !important; }
+}
+@media (max-width: 380px) {
+  .section, .form-card, .card, .panel, .wrap { padding: 11px !important; }
+  button, .btn, .tabs button { padding: 9px 10px; font-size: 13px; }
+  .brand { gap: 8px; }
+}
+@media (min-width: 1400px) {
+  .section, .wrap, .container { margin-left: auto; margin-right: auto; }
+}
+
+</style></head><body><main class="card"><div style="display:flex;align-items:center;gap:12px"><img src="/bcit-logo.jpeg" alt="BCIT logo" style="width:54px;height:54px;object-fit:contain;border-radius:10px"><div class="brand">BCIT · ADMINISTRATION</div></div><h1>Admin Login</h1><p class="muted">Enter the administrator password to view admission and enquiry records.</p>
+<form method="post" action="/admin/login"><label for="password">Admin Password</label><input id="password" name="password" type="password" autocomplete="current-password" required autofocus><button type="submit">Secure Login</button></form>
+<script>
+if (location.search.includes('error')) {
+  const toast = document.createElement('div');
+  toast.textContent = 'Login failed. Please check your password.';
+  toast.setAttribute('role', 'alert');
+  toast.style.cssText = 'position:fixed;top:18px;right:18px;z-index:99999;background:#c62828;color:#fff;padding:13px 18px;border-radius:8px;box-shadow:0 5px 20px #0003;font-size:14px;max-width:calc(100vw - 36px)';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+  const error = document.createElement('div');
+  error.className = 'error';
+  error.textContent = 'Login failed. Please check your password.';
+  document.querySelector('.card form').insertAdjacentElement('afterend', error);
+}
+</script>
+<div class="hint">Access is restricted. Configure a unique ADMIN_PASSWORD in your private .env file before first login. Student records are shown only after login.</div></main></body></html>

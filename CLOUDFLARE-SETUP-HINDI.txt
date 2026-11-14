@@ -1,0 +1,67 @@
+BCIT – FLASK + CLOUDFLARE D1 + R2 SETUP
+======================================
+
+Architecture
+------------
+- Flask app.py handles all website APIs, authentication and sessions.
+- Student/admission/fee/attendance/exam/course/assignment records use Cloudflare D1.
+- Uploaded photos, PDFs, study material, assignments and payment proofs use the private R2 bucket.
+- file_metadata aur admin_activity bhi Cloudflare D1 mein store hote hain; local SQLite persistent storage use nahi hota.
+- The browser does not call a Cloudflare Worker for application APIs.
+
+Cloudflare values already filled in .env.example
+-------------------------------------------------
+CLOUDFLARE_ACCOUNT_ID=980b2ede5404f68d405ac24886651c46
+D1_DATABASE_ID=81e66fec-4e10-49dc-ab2c-c648997cd919
+R2_ACCOUNT_ID=980b2ede5404f68d405ac24886651c46
+R2_BUCKET_NAME=bcit-files
+
+Setup
+-----
+1. Copy .env.example to .env in the same folder as app.py.
+2. Put your real D1 API token in CLOUDFLARE_API_TOKEN. Token needs D1 Read and D1 Write permissions for this database/account.
+3. Put your R2 S3 Access Key ID in R2_ACCESS_KEY_ID and Secret Access Key in R2_SECRET_ACCESS_KEY. These must be R2 API credentials with Object Read & Write permission for bcit-files.
+4. Keep .env private. Never send it in chat or include it in a ZIP.
+5. Install dependencies: python -m pip install -r requirements.txt
+6. Start Flask: python app.py
+7. Open http://127.0.0.1:5000/api/health. It should return database="D1 connected".
+8. Test an admission/photo upload and one portal material upload. Those are the operations that verify actual R2 access.
+
+Important
+---------
+- This code uses Cloudflare's D1 REST API from Flask and the S3-compatible R2 API from Flask.
+- D1 REST queries commit individually. The compatibility adapter supports the existing sqlite-style execute/fetchone/fetchall/lastrowid API, but separate statements in a route are not a single cross-request transaction. If one statement in a multi-step operation fails after an earlier statement committed, the app may need a compensating cleanup.
+- No existing D1 rows are deleted. The old local student database is not imported. Existing local SQLite contents are left untouched; only local metadata/activity tables are created or used.
+- R2 objects are private; files are streamed through Flask after existing admin/student authorization checks.
+- Live D1/R2 connectivity cannot be verified from this source package because your private .env credentials are not included. The /api/health endpoint tests D1; actual upload/download verifies R2.
+
+
+============================================================
+VERCEL DEPLOYMENT (FLASK + D1 + R2)
+============================================================
+
+1. GitHub par is project ka source push karein. .env ko kabhi GitHub par upload na karein.
+2. Vercel Dashboard > Add New > Project > apna GitHub repository Import karein.
+3. Framework Preset ko Other rakhein. Root Directory project folder hi rahe.
+4. Vercel > Project > Settings > Environment Variables mein .env.example ke
+   deployment variables add karein. Real values apne Cloudflare dashboard/API
+   token aur local .env se khud copy karein; kisi ke saath secrets share na karein.
+5. Required: SECRET_KEY (long random), ADMIN_PASSWORD, CLOUDFLARE_ACCOUNT_ID,
+   D1_DATABASE_ID, CLOUDFLARE_API_TOKEN, R2_ACCOUNT_ID, R2_BUCKET_NAME,
+   R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY. Gemini assistant ke liye
+   GEMINI_API_KEY aur institute UPI ke liye UPI_ID bhi set karein.
+6. Cloudflare API token ko minimum required D1 read/write permissions aur
+   account scope dein. R2 credentials alag R2 API token se banayein.
+7. Deploy karein. Deployment ke baad /api/health open karke
+   {"ok":true,"database":"D1 connected"} response verify karein.
+8. Admin login, student login, admission receipt, upload/download, payment
+   status aur backup routes ko test karein.
+
+IMPORTANT:
+- Student/business records, file_metadata aur admin_activity D1 mein hain.
+- File bytes R2 bucket mein hain. Vercel disk par persistent uploads/SQLite nahi.
+- data/bcit.sqlite se koi automatic migration/import nahi hota. Aapke pehle diye
+  gaye nirdesh ke mutabik purane local SQLite records import nahi kiye jaate.
+- Vercel /tmp sirf temporary files/session fallback ke liye hai; SECRET_KEY ko
+  Environment Variables mein set karna zaroori hai taaki sessions stable rahen.
+- Vercel environment variables badalne ke baad redeploy karein.

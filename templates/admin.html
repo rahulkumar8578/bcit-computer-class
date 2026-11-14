@@ -1,0 +1,2276 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BCIT Admin Dashboard</title>
+    <style>
+      :root {
+        --navy: #101a2e;
+        --orange: #245be7;
+        --ink: #172033;
+        --muted: #68758a;
+        --line: #e3e8ef;
+        --bg: #f4f6fa;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: linear-gradient(180deg, #eef3fa 0, #f7f9fc 240px);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        color: var(--ink);
+        line-height: 1.5;
+      }
+      button, input, select, textarea { font: inherit; }
+      button:focus-visible, a:focus-visible, input:focus-visible,
+      select:focus-visible, textarea:focus-visible {
+        outline: 3px solid #9db8ff;
+        outline-offset: 2px;
+      }
+      header { box-shadow: 0 8px 28px #10204018; }
+      .wrap { padding-top: 28px; }
+      header {
+        background: var(--navy);
+        color: white;
+        padding: 20px clamp(16px, 3vw, 38px);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .brand {
+        font-size: 12px;
+        letter-spacing: 2px;
+        color: #a9c2ff;
+        font-weight: 800;
+      }
+      header h1 { margin: 5px 0 0; font-size: clamp(21px, 3vw, 29px); }
+      .logout {
+        background: #fff;
+        color: var(--navy);
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .wrap {
+        max-width: 1500px;
+        margin: auto;
+        padding: 24px clamp(12px, 2.5vw, 30px);
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .stat {
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        padding: 19px;
+        box-shadow: 0 3px 12px #16213a08;
+      }
+      .stat .label { color: var(--muted); font-size: 13px; font-weight: 700; }
+      .stat .num { font-size: 32px; font-weight: 800; margin-top: 9px; }
+      .tabs { display: flex; gap: 8px; margin: 22px 0 14px; flex-wrap: wrap; }
+      .tab {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: #fff;
+        padding: 11px 16px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      .tab.active {
+        background: var(--orange);
+        color: #fff;
+        border-color: var(--orange);
+      }
+      .toolbar {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+        background: white;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-bottom: 0;
+        border-radius: 12px 12px 0 0;
+      }
+      .toolbar input {
+        flex: 1;
+        min-width: 210px;
+        padding: 11px;
+        border: 1px solid #d5dce7;
+        border-radius: 8px;
+        font-size: 14px;
+      }
+      .toolbar button {
+        padding: 10px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #fff;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .tablebox {
+        overflow: auto;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 0 0 12px 12px;
+      }
+      table { width: 100%; border-collapse: collapse; white-space: nowrap; font-size: 13px; }
+      th, td {
+        padding: 12px 13px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th {
+        background: #f7f8fb;
+        color: #4b5870;
+        font-size: 11px;
+        letter-spacing: 0.4px;
+        text-transform: uppercase;
+        position: sticky;
+        top: 0;
+      }
+      tbody tr:hover { background: #f2f6ff; }
+      .pill {
+        display: inline-block;
+        border-radius: 20px;
+        padding: 5px 8px;
+        font-size: 11px;
+        font-weight: 800;
+        background: #fff1df;
+        color: #a94a0c;
+      }
+      .pill.paid { background: #e4f7eb; color: #167342; }
+      /* Keep admission payment status actions side by side without wrapping. */
+      .payment-actions {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 6px;
+        margin-top: 8px;
+        white-space: nowrap;
+        min-width: max-content;
+      }
+      .payment-actions button {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        white-space: nowrap;
+        word-break: keep-all;
+        overflow-wrap: normal;
+        border: 0;
+        border-radius: 6px;
+        padding: 6px 8px;
+        font-size: 11px;
+        line-height: 1.2;
+        font-weight: 800;
+        cursor: pointer;
+      }
+      td:has(.payment-actions) { white-space: nowrap; }
+      .verify-btn { background: #e4f7eb; color: #167342; }
+      .pending-btn { background: #fff1df; color: #a94a0c; }
+      .payment-actions button:disabled { opacity: 0.5; cursor: wait; }
+      .empty { text-align: center; padding: 28px; color: var(--muted); }
+      .status { font-size: 13px; color: var(--muted); margin: 12px 2px; }
+      .notice {
+        padding: 12px;
+        background: #fff7e8;
+        border: 1px solid #f4d9a5;
+        border-radius: 9px;
+        margin-bottom: 15px;
+        font-size: 13px;
+      }
+      #bcitToast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 99999;
+        max-width: min(420px, calc(100vw - 40px));
+        padding: 13px 18px;
+        border-radius: 10px;
+        background: #16834a;
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px;
+        box-shadow: 0 8px 28px #10204035;
+        opacity: 0;
+        transform: translateY(-10px);
+        pointer-events: none;
+        transition: opacity 0.2s, transform 0.2s;
+      }
+      #bcitToast.show { opacity: 1; transform: translateY(0); }
+      #bcitToast.error { background: #c62828; }
+      @media (max-width: 950px) {
+        .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 700px) {
+        .cards { grid-template-columns: 1fr; }
+        .stat { padding: 14px; }
+        .stat .num { font-size: 26px; }
+      }
+
+      button, input[type="button"], input[type="submit"], input[type="reset"],
+      .btn, .tab, a.button, .logout, .verify-btn, .pending-btn {
+        background-color: #245be7 !important;
+        color: #ffffff !important;
+        border-color: #245be7 !important;
+      }
+      button:hover, input[type="button"]:hover, input[type="submit"]:hover,
+      input[type="reset"]:hover, .btn:hover, .tab:hover, a.button:hover,
+      .logout:hover, .verify-btn:hover, .pending-btn:hover {
+        background-color: #1748c7 !important;
+        color: #ffffff !important;
+        border-color: #1748c7 !important;
+      }
+      button:disabled, input[type="submit"]:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .portal-toolbar {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 16px;
+        background: #f7f9fd;
+        border: 1px solid #dfe6f1;
+        border-radius: 14px;
+        margin: 14px 0;
+      }
+      .portal-toolbar input, .portal-toolbar select {
+        padding: 12px 14px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        min-width: 220px;
+        font-size: 14px;
+        background: #fff;
+      }
+      .section-kicker {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        font-weight: 800;
+        color: #52627d;
+        text-transform: uppercase;
+      }
+      .batch-hero {
+        background: linear-gradient(120deg, #101f40, #1e4a91);
+        color: #fff;
+        padding: 22px;
+        border-radius: 16px;
+        margin: 12px 0 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .batch-hero h3 { margin: 6px 0; font-size: 23px; }
+      .batch-hero p { margin: 0; color: #d8e5ff; font-size: 13px; }
+      .batch-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 14px 0;
+      }
+      .batch-stat {
+        background: #fff;
+        border: 1px solid #e1e7f0;
+        border-radius: 13px;
+        padding: 16px;
+        box-shadow: 0 4px 14px #1020400a;
+      }
+      .batch-stat small { display: block; color: #64748b; font-weight: 700; }
+      .batch-stat strong { display: block; font-size: 25px; margin-top: 7px; color: #172b4d; }
+      .batch-picker {
+        background: #fff;
+        border: 1px solid #dce4ef;
+        border-radius: 14px;
+        padding: 16px;
+        margin: 14px 0;
+      }
+      .student-choice-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 10px;
+        max-height: 340px;
+        overflow: auto;
+        margin: 14px 0;
+      }
+      .student-choice {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e0e7f0;
+        border-radius: 11px;
+        padding: 12px;
+        background: #fbfcff;
+        cursor: pointer;
+      }
+      .student-choice:has(input:checked) { border-color: #245be7; background: #eff4ff; }
+      .student-choice input { width: 18px; height: 18px; accent-color: #245be7; }
+      .student-choice b { display: block; font-size: 13px; }
+      .student-choice small { color: #64748b; }
+      .batch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+      }
+      .batch-card {
+        background: #fff;
+        border: 1px solid #dfe6f1;
+        border-radius: 14px;
+        padding: 17px;
+        box-shadow: 0 4px 14px #10204008;
+      }
+      .batch-card h4 { margin: 0 0 8px; font-size: 17px; }
+      .batch-card .batch-meta { color: #64748b; font-size: 12px; margin-bottom: 14px; }
+      .capacity-track {
+        height: 8px;
+        background: #e9eef7;
+        border-radius: 20px;
+        overflow: hidden;
+        margin: 8px 0 13px;
+      }
+      .capacity-track span { display: block; height: 100%; background: #245be7; border-radius: 20px; }
+      .batch-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      .batch-actions button { font-size: 12px; }
+      .verify-filter {
+        display: grid;
+        grid-template-columns: minmax(220px, 1fr) auto auto;
+        gap: 10px;
+        align-items: end;
+        background: #f5f8ff;
+        border: 1px solid #dce5f4;
+        border-radius: 13px;
+        padding: 15px;
+        margin: 14px 0;
+      }
+      .verify-filter label { font-size: 12px; color: #52627d; font-weight: 800; }
+      .verify-filter input {
+        display: block;
+        width: 100%;
+        margin-top: 6px;
+        padding: 12px;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        font-size: 14px;
+      }
+      .verify-summary { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+      .verify-chip {
+        background: #fff;
+        border: 1px solid #e1e7f0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 13px;
+        color: #475569;
+      }
+      .verify-chip b { color: #172b4d; }
+      .report-hub {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+        padding: 16px;
+        border: 1px solid #dce5f4;
+        border-radius: 14px;
+        background: linear-gradient(120deg, #f7faff, #fff);
+        margin: 12px 0;
+      }
+      .report-hub strong, .report-hub small { display: block; }
+      .report-hub small { color: #64748b; margin-top: 4px; }
+      .report-links { display: flex; gap: 8px; flex-wrap: wrap; }
+      .report-links a {
+        display: inline-block;
+        text-decoration: none;
+        background: #245be7;
+        color: #fff;
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .report-links a:hover { background: #1748c7; }
+      .attendance-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 14px 0;
+      }
+      @media (max-width: 700px) {
+        .batch-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .verify-filter { grid-template-columns: 1fr; }
+        .attendance-summary { grid-template-columns: 1fr; }
+      }
+      /* Keep every Student & Portal Management tab on one horizontal line.
+         Narrow screens can scroll the tab row instead of wrapping Submissions. */
+      #portalTabs {
+        display: flex;
+        flex-wrap: nowrap;
+        column-gap: 6px;
+        row-gap: 8px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+        max-width: 100%;
+        padding-bottom: 4px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+      }
+      #portalTabs .tab { padding: 10px 12px; white-space: nowrap; flex: 0 0 auto; }
+      @media (max-width: 1100px) {
+        #portalTabs { column-gap: 6px; }
+        #portalTabs .tab { padding: 9px 10px; font-size: 14px; }
+      }
+      *, *::before, *::after {
+        font-family: "Times New Roman", Times, serif !important;
+      }
+    
+/* =========================================================
+   BCIT CROSS-DEVICE RESPONSIVE HARDENING
+   Fluid sizing: small phones through large desktop displays
+   ========================================================= */
+:root { color-scheme: light; }
+*, *::before, *::after { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; min-width: 0; }
+html { overflow-x: clip; }
+body { overflow-x: clip; }
+img, video, canvas, iframe, svg { max-width: 100%; }
+img { height: auto; }
+button, input, select, textarea { max-width: 100%; min-width: 0; }
+input, select, textarea { width: 100%; }
+button, .btn, a.button { white-space: normal; overflow-wrap: anywhere; }
+main, section, header, footer, nav, article, aside, form, .wrap, .container, .section,
+.card, .form-card, .panel, .content, .dashboard, .dashboard-content { min-width: 0; max-width: 100%; }
+pre, code { max-width: 100%; overflow-x: auto; }
+table { max-width: 100%; }
+.table-wrap, .table-responsive, .scroll, .table-container { width: 100%; max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+th, td { overflow-wrap: anywhere; }
+.flex, .row, .toolbar, .actions, .tabs, .nav-links { min-width: 0; flex-wrap: wrap; }
+.grid, .cards, .stats, .form-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); }
+
+@media (max-width: 900px) {
+  .topbar, header { gap: 12px; flex-wrap: wrap; }
+  .topbar { padding-left: clamp(12px, 3vw, 24px); padding-right: clamp(12px, 3vw, 24px); }
+  .brand { flex: 1 1 260px; }
+  .nav, .nav-links, .topbar nav { max-width: 100%; flex-wrap: wrap; }
+  .section, main.wrap, .wrap { padding-left: clamp(12px, 2.5vw, 24px); padding-right: clamp(12px, 2.5vw, 24px); }
+}
+@media (max-width: 650px) {
+  html { scroll-padding-top: 72px; }
+  .topbar { position: relative; align-items: flex-start; }
+  .brand { width: 100%; flex-basis: 100%; }
+  .nav, .nav-links, .topbar nav, .tabs, .portal-toolbar, .actions, .toolbar {
+    width: 100%; display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .nav a, .nav button, .nav-links a, .topbar nav a { flex: 1 1 auto; text-align: center; }
+  .section, .form-card, .card, .panel, .wrap { padding: 14px !important; }
+  h1 { font-size: clamp(21px, 6vw, 30px); line-height: 1.2; }
+  h2 { font-size: clamp(19px, 5vw, 26px); line-height: 1.25; }
+  h3 { font-size: clamp(17px, 4.5vw, 22px); }
+  p { overflow-wrap: anywhere; }
+  .cards, .stats, .attendance-summary, .batch-stats, .form-grid { grid-template-columns: 1fr !important; }
+  .tabs button, .tab, .btn, button { max-width: 100%; }
+  .portal-toolbar input, .portal-toolbar select { min-width: 0; width: 100%; }
+  .verify-filter { grid-template-columns: 1fr !important; }
+  .student-choice-grid, .batch-grid { grid-template-columns: 1fr !important; }
+  .chat-input { flex-wrap: wrap; }
+  .chat-input input, .chat-input button { width: 100%; flex-basis: 100%; }
+  iframe { width: 100% !important; max-width: 100% !important; }
+}
+@media (max-width: 380px) {
+  .section, .form-card, .card, .panel, .wrap { padding: 11px !important; }
+  button, .btn, .tabs button { padding: 9px 10px; font-size: 13px; }
+  .brand { gap: 8px; }
+}
+@media (min-width: 1400px) {
+  .section, .wrap, .container { margin-left: auto; margin-right: auto; }
+}
+
+
+/* University-style Study Materials resource centre — scoped to this tab only */
+#pt-materials{max-width:1180px;margin:0 auto;padding:8px 0 30px;color:#182b49}
+#pt-materials .materials-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:26px 30px;margin:0 0 22px;border:1px solid #dce6f3;border-radius:18px;background:linear-gradient(115deg,#f4f8ff,#fff 68%,#eef4ff)}
+#pt-materials .materials-kicker{display:block;color:#52709b;font-size:11px;font-weight:800;letter-spacing:1.8px;text-transform:uppercase}
+#pt-materials .materials-heading h3{margin:7px 0 5px;color:#142b4d;font-size:clamp(23px,3vw,30px);line-height:1.2}
+#pt-materials .materials-heading p,#pt-materials .materials-card-heading p,#pt-materials .materials-library-heading p{margin:0;color:#687b95;font-size:14px}
+#pt-materials .materials-heading-mark{display:grid;place-items:center;width:62px;height:62px;flex:0 0 62px;border-radius:18px;background:#e4edff;color:#245be7;font-size:30px}
+#pt-materials .materials-upload-card{padding:25px;border:1px solid #dce5f1;border-radius:17px;background:#fff;box-shadow:0 10px 28px #1630570f}
+#pt-materials .materials-card-heading{display:flex;align-items:center;gap:13px;padding-bottom:19px;margin-bottom:20px;border-bottom:1px solid #edf1f6}
+#pt-materials .materials-icon{display:grid;place-items:center;width:42px;height:42px;flex:0 0 42px;border-radius:12px;background:#edf3ff;color:#245be7;font-size:27px}
+#pt-materials .materials-card-heading h4,#pt-materials .materials-library-heading h4{margin:0 0 4px;color:#1b3152;font-size:19px}
+#pt-materials .materials-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:19px 20px;padding:0;margin:0;border:0;background:transparent}
+#pt-materials .materials-field{display:flex;min-width:0;flex-direction:column;gap:8px;color:#344a68;font-size:13px;font-weight:700}
+#pt-materials .materials-field-wide{grid-column:1/-1}#pt-materials .materials-field b{color:#d04444}#pt-materials .materials-field em{margin-left:6px;color:#8492a6;font-size:11px;font-style:normal;font-weight:500}
+#pt-materials .materials-field input:not([type=file]),#pt-materials .materials-field select{width:100%;min-height:47px;padding:11px 13px;border:1px solid #d4deeb;border-radius:9px;background:#fbfcfe;color:#203653;font-size:14px}
+#pt-materials .materials-field input:focus,#pt-materials .materials-field select:focus{border-color:#7398ef;background:#fff;outline:3px solid #e7efff}
+#pt-materials .materials-field small{color:#8492a6;font-size:11px;font-weight:400}
+#pt-materials .materials-dropzone{display:flex;min-height:142px;align-items:center;justify-content:center;flex-direction:column;gap:6px;padding:18px;border:1.5px dashed #aebfda;border-radius:12px;background:#f8faff;text-align:center;cursor:pointer}
+#pt-materials .materials-dropzone:hover{border-color:#648be8;background:#f2f6ff}#pt-materials .materials-upload-symbol{display:grid;place-items:center;width:35px;height:35px;border-radius:50%;background:#e5edff;color:#245be7;font-size:23px}
+#pt-materials .materials-dropzone strong{color:#29466e;font-size:14px}#pt-materials .materials-dropzone small{color:#7a8ba3}#pt-materials .materials-dropzone input[type=file]{width:auto;max-width:100%;margin-top:5px;font-size:12px}
+#pt-materials .materials-form-footer{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:17px;border-top:1px solid #edf1f6}
+#pt-materials .materials-form-footer span{color:#8492a6;font-size:12px}#pt-materials .materials-form-footer button{min-height:46px;padding:11px 20px;border:1px solid #245be7;border-radius:9px;background:#245be7;color:#fff;font-size:14px;font-weight:800;cursor:pointer}
+#pt-materials .materials-form-footer button:hover{background:#1748c7}#pt-materials .materials-form-footer button:disabled{opacity:.55;cursor:wait}
+#pt-materials .materials-library{margin-top:28px}#pt-materials .materials-library-heading{padding:0 2px 13px}#pt-materials .materials-library-heading h4{margin-top:5px}
+#pt-materials .materials-list{display:grid;gap:10px}#pt-materials .materials-list .item{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px 17px;border:1px solid #e0e8f2;border-radius:11px;background:#fff;color:#536780;font-size:13px}
+#pt-materials .materials-list .item b{color:#1c3558}#pt-materials .materials-list .item a{color:#245be7;font-weight:700;text-decoration:none}#pt-materials .materials-list .item button{margin-left:auto}
+@media(max-width:700px){ #pt-materials .materials-heading{padding:20px}#pt-materials .materials-heading-mark{width:48px;height:48px;flex-basis:48px}#pt-materials .materials-upload-card{padding:17px}#pt-materials .materials-form{grid-template-columns:1fr;gap:15px}#pt-materials .materials-field-wide,#pt-materials .materials-form-footer{grid-column:1}#pt-materials .materials-form-footer{align-items:stretch;flex-direction:column}#pt-materials .materials-form-footer button{width:100%}}
+
+
+/* Online Exam Question Builder — layout only; Times New Roman remains global */
+#pt-exams #onlineQuestionBuilder{padding:22px;background:#f7f9fd;border:1px solid #dce5f1;border-radius:16px}
+#pt-exams #onlineQuestionBuilder>div:first-child{padding:4px 2px 14px;border-bottom:1px solid #e5ebf3}
+#pt-exams #onlineQuestionBuilder h4{margin:0;color:#172f52;font-size:21px}
+#pt-exams #onlineQuestionBuilder>div:first-child label{display:flex;align-items:center;gap:10px;color:#405675;font-weight:700}
+#pt-exams #onlineQuestionBuilder #onlineQuestionTarget{width:86px!important;min-height:38px;padding:7px 9px;border:1px solid #cbd7e7;border-radius:8px;background:#fff}
+#pt-exams #onlineQuestionBuilder button{border:0;border-radius:8px;padding:9px 14px;background:#245be7;color:#fff;font-weight:700;cursor:pointer}
+#pt-exams #onlineQuestionBuilder button:hover{background:#1948c4}
+#pt-exams #onlineQuestionRows{display:grid;gap:16px;margin-top:16px}
+#pt-exams .online-question-card{display:grid;gap:15px;min-width:0;padding:20px;border:1px solid #dce5f0;border-radius:13px;background:#fff;box-shadow:0 5px 18px #19365b0a}
+#pt-exams .online-question-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px solid #edf1f6;color:#18365e;font-size:18px}
+#pt-exams #onlineQuestionBuilder .online-remove-btn{background:#fff0f0;color:#b42318;border:1px solid #ffd3d0}
+#pt-exams .online-question-card label{display:flex;flex-direction:column;gap:7px;min-width:0;color:#405675;font-size:14px;font-weight:700}
+#pt-exams .online-question-card input,#pt-exams .online-question-card select,#pt-exams .online-question-card textarea{display:block;width:100%;min-width:0;max-width:100%;padding:11px 12px;border:1px solid #cfd9e7;border-radius:8px;background:#fbfcfe;color:#1c2d45;font-size:15px;line-height:1.45}
+#pt-exams .online-question-card textarea{min-height:86px;resize:vertical}
+#pt-exams .online-question-card input:focus,#pt-exams .online-question-card select:focus,#pt-exams .online-question-card textarea:focus{outline:3px solid #e6edff;border-color:#7394e8;background:#fff}
+#pt-exams .online-options-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px 16px}
+#pt-exams .online-question-meta{display:grid;grid-template-columns:minmax(0,2fr) minmax(110px,1fr);gap:14px;max-width:620px;padding-top:2px}
+#pt-exams .online-question-actions{display:flex;justify-content:flex-end;padding-top:13px;border-top:1px solid #edf1f6}
+#pt-exams #onlineQuestionCount{margin:13px 2px 0;color:#657792;font-size:13px;font-weight:700}
+@media(max-width:650px){ #pt-exams #onlineQuestionBuilder{padding:14px}#pt-exams .online-question-card{padding:14px}#pt-exams .online-options-grid,#pt-exams .online-question-meta{grid-template-columns:1fr}#pt-exams #onlineQuestionBuilder>div:first-child{align-items:flex-start!important;flex-direction:column}#pt-exams #onlineQuestionBuilder>div:first-child label{flex-wrap:wrap}}
+
+
+/* BCIT UNIVERSITY-STYLE ASSIGNMENT MANAGEMENT PORTAL — scoped to this panel */
+#pt-assignments { display:block; min-width:0; }
+#pt-assignments .assignment-portal-head{display:flex;align-items:center;justify-content:space-between;gap:22px;margin:0 0 22px;padding:25px 28px;border:1px solid #dbe5f1;border-radius:17px;background:linear-gradient(115deg,#f4f8ff 0%,#fff 62%,#edf3ff 100%);box-shadow:0 8px 26px rgba(25,55,95,.06)}
+#pt-assignments .assignment-kicker,#pt-assignments .assignment-step{display:block;color:#245be7;font-size:11px;font-weight:800;letter-spacing:1.5px}
+#pt-assignments .assignment-portal-head h3{margin:7px 0 6px;color:#142b4c;font-size:clamp(23px,3vw,31px);line-height:1.15}
+#pt-assignments .assignment-portal-head p,#pt-assignments .assignment-section-heading p{margin:0;color:#64748b;font-size:14px;line-height:1.55}
+#pt-assignments .assignment-head-mark{display:grid;place-items:center;flex:0 0 62px;width:62px;height:62px;border-radius:16px;background:#e5edff;color:#245be7;font-size:34px;font-weight:700}
+#pt-assignments .assignment-create-card,#pt-assignments .assignment-list-section{margin:0 0 22px;padding:22px;border:1px solid #e0e7f0;border-radius:16px;background:#fff;box-shadow:0 6px 22px rgba(20,42,72,.045)}
+#pt-assignments .assignment-section-heading{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:19px}
+#pt-assignments .assignment-section-heading h4{margin:5px 0 5px;color:#193454;font-size:21px}
+#pt-assignments .assignment-create-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0;padding:0;border:0;background:transparent;box-shadow:none}
+#pt-assignments .assignment-field{display:flex;flex-direction:column;gap:8px;min-width:0;color:#344b68;font-size:13px;font-weight:700}
+#pt-assignments .assignment-field-wide{grid-column:1/-1}
+#pt-assignments .assignment-field input,#pt-assignments .assignment-field select{width:100%;min-width:0;max-width:100%;min-height:43px;padding:10px 12px;border:1px solid #d4deeb;border-radius:9px;background:#fbfcff;color:#1c2d45;font-size:14px}
+#pt-assignments .assignment-field input:focus,#pt-assignments .assignment-field select:focus{outline:3px solid #e9efff;border-color:#7896e8;background:#fff}
+#pt-assignments .assignment-upload-field{grid-column:1/-1;padding:15px;border:1px dashed #aebfda;border-radius:11px;background:#f8faff}
+#pt-assignments .assignment-upload-hint{color:#718198;font-size:12px;font-weight:400}
+#pt-assignments .assignment-upload-field input{border:0;background:transparent;padding:4px 0}
+#pt-assignments .assignment-form-actions{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-top:6px}
+#pt-assignments .assignment-form-actions span{color:#64748b;font-size:12px}
+#pt-assignments .assignment-form-actions button{border:0;border-radius:9px;padding:12px 19px;background:#245be7;color:#fff;font-weight:800;font-size:14px;cursor:pointer;white-space:nowrap}
+#pt-assignments .assignment-form-actions button:hover{background:#1948c4}
+#pt-assignments .assignment-live-label{display:inline-flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid #dbe8df;border-radius:20px;background:#f4fbf6;color:#34734a;font-size:12px;font-weight:700;white-space:nowrap}
+#pt-assignments .assignment-live-label i{width:7px;height:7px;border-radius:50%;background:#22a05a}
+#pt-assignments .assignment-library{display:grid;gap:13px}
+#pt-assignments .assignment-library:empty{display:block}
+#pt-assignments .assignment-library .item{display:block;min-width:0;margin:0;padding:18px;border:1px solid #e1e8f1;border-left:4px solid #4775d8;border-radius:12px;background:#fbfcff;color:#43546c;line-height:1.65;overflow-wrap:anywhere}
+#pt-assignments .assignment-library .item>b{display:block;margin-bottom:5px;color:#183453;font-size:17px}
+#pt-assignments .assignment-library .item a{color:#245be7;font-weight:700;text-decoration:none}
+#pt-assignments .assignment-library .item a:hover{text-decoration:underline}
+#pt-assignments .assignment-library .item form{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:13px 0 8px!important;padding:12px;border:1px solid #e4eaf3;border-radius:9px;background:#fff}
+#pt-assignments .assignment-library .item form label{display:flex;flex-direction:column;gap:6px;min-width:min(100%,260px);color:#405675;font-size:12px;font-weight:700}
+#pt-assignments .assignment-library .item form input{max-width:100%;font-size:13px}
+#pt-assignments .assignment-library .item button{margin:6px 7px 0 0;border:1px solid #d7e1ef;border-radius:8px;padding:8px 12px;background:#edf3ff;color:#214a91;font-weight:700;cursor:pointer}
+#pt-assignments .assignment-library .item button[onclick*="deleteLearningItem"]{border-color:#f3d2d2;background:#fff5f5;color:#b42318}
+@media(max-width:680px){ #pt-assignments .assignment-portal-head{padding:19px;align-items:flex-start}#pt-assignments .assignment-create-card,#pt-assignments .assignment-list-section{padding:16px}#pt-assignments .assignment-create-form{grid-template-columns:1fr}#pt-assignments .assignment-field-wide,#pt-assignments .assignment-upload-field,#pt-assignments .assignment-form-actions{grid-column:1}#pt-assignments .assignment-list-heading{align-items:flex-start;flex-direction:column}}
+
+
+
+/* BCIT UNIVERSITY ADMINISTRATION SUITE — visual-only styling for requested portal panels */
+:root{--uni-ink:#172b4d;--uni-muted:#64748b;--uni-line:#dce5f0;--uni-soft:#f4f7fb;--uni-blue:#173b68;--uni-accent:#245be7;--uni-shadow:0 12px 32px rgba(20,43,77,.07)}
+#portalTabs{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;padding:10px 4px 14px;margin:0 0 18px;border-bottom:1px solid var(--uni-line);scrollbar-width:thin}
+#portalTabs .tab{flex:0 0 auto;white-space:nowrap;border:1px solid #d8e2ef;border-radius:10px;background:#fff;color:#304766;padding:10px 15px;font-weight:700;box-shadow:0 2px 8px rgba(20,43,77,.035);transition:background .18s,border-color .18s,transform .18s}
+#portalTabs .tab:hover{border-color:#9db7da;transform:translateY(-1px)}
+#portalTabs .tab.active,#portalTabs .tab[aria-selected=true]{background:var(--uni-blue);border-color:var(--uni-blue);color:#fff;box-shadow:0 5px 14px rgba(23,59,104,.18)}
+#pt-students,#pt-fees,#pt-verify,#pt-attendance,#pt-batches,#pt-receipts,#pt-passwords,#pt-assignments,#pt-submissions,#pt-exams,#pt-due{color:var(--uni-ink)}
+#portalAdminPanel .pt-panel[hidden]{display:none!important}
+#portalAdminPanel .pt-panel:not([hidden]){display:block!important}
+#pt-students:not([hidden]),#pt-fees:not([hidden]),#pt-verify:not([hidden]),#pt-attendance:not([hidden]),#pt-batches:not([hidden]),#pt-receipts:not([hidden]),#pt-passwords:not([hidden]),#pt-assignments:not([hidden]),#pt-submissions:not([hidden]),#pt-exams:not([hidden]),#pt-due:not([hidden]){display:block;background:#fff;border:1px solid var(--uni-line);border-radius:18px;padding:clamp(16px,2.2vw,28px);box-shadow:var(--uni-shadow);min-width:0;overflow:hidden}
+#pt-students h3,#pt-fees h3,#pt-verify h3,#pt-attendance h3,#pt-batches h3,#pt-receipts h3,#pt-passwords h3,#pt-assignments h3,#pt-submissions h3,#pt-exams h3,#pt-due h3{color:var(--uni-blue);font-size:clamp(20px,2vw,25px);font-weight:800;letter-spacing:-.25px;margin:0 0 16px;padding:0 0 13px;border-bottom:1px solid #e7edf5}
+#pt-students p,#pt-fees p,#pt-verify p,#pt-attendance p,#pt-receipts p,#pt-passwords p,#pt-submissions p,#pt-due p{color:var(--uni-muted)}
+#pt-students .toolbar,#pt-fees .toolbar,#pt-verify .toolbar,#pt-attendance .toolbar,#pt-receipts .toolbar,#pt-passwords .toolbar,#pt-submissions .toolbar,#pt-exams>.toolbar,#pt-due .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:15px;margin:0 0 18px;background:var(--uni-soft);border:1px solid #e4ebf4;border-radius:13px}
+#pt-students input,#pt-fees input,#pt-fees select,#pt-verify input,#pt-attendance select,#pt-passwords input,#pt-exams input,#pt-exams select,#pt-exams textarea{min-height:42px;border:1px solid #cfd9e6;border-radius:9px;background:#fff;padding:9px 12px;color:#1e293b;max-width:100%}
+#pt-students button,#pt-fees button,#pt-verify button,#pt-attendance button,#pt-receipts button,#pt-passwords button,#pt-exams button,#pt-due button,#pt-submissions button{border-radius:9px;font-weight:700;letter-spacing:.05px}
+#pt-students .tablebox,#pt-verify .tablebox,#pt-passwords .tablebox,#pt-receipts .tablebox{border:1px solid var(--uni-line);border-radius:13px;overflow:auto;background:#fff}
+#pt-students table,#pt-verify table,#pt-passwords table,#pt-receipts table,#pt-due table,#pt-submissions table{width:100%;border-collapse:separate;border-spacing:0;min-width:720px}
+#pt-students th,#pt-verify th,#pt-passwords th,#pt-receipts th,#pt-due th,#pt-submissions th{background:#edf3fa;color:#294565;font-size:12px;text-transform:uppercase;letter-spacing:.55px;font-weight:800;white-space:nowrap;padding:13px 14px;border-bottom:1px solid #dbe5f0}
+#pt-students td,#pt-verify td,#pt-passwords td,#pt-receipts td,#pt-due td,#pt-submissions td{padding:13px 14px;border-bottom:1px solid #edf1f6;vertical-align:middle;color:#334155}
+#pt-students tbody tr:hover,#pt-verify tbody tr:hover,#pt-passwords tbody tr:hover,#pt-receipts tbody tr:hover,#pt-due tbody tr:hover,#pt-submissions tbody tr:hover{background:#f8fbff}
+#pt-fees #offlineFeeForm{display:grid;grid-template-columns:repeat(2,minmax(220px,1fr));align-items:end;gap:16px;padding:22px;background:linear-gradient(135deg,#f5f8fd,#fff);border:1px solid var(--uni-line);border-radius:15px;max-width:900px}
+#pt-fees #offlineFeeForm input,#pt-fees #offlineFeeForm select{width:100%}
+#pt-fees #offlineFeeForm button{grid-column:1/-1;justify-self:start;min-height:44px;padding:0 22px}
+#pt-verify .verify-filter{display:flex;align-items:end;gap:12px;flex-wrap:wrap;padding:15px;margin:0 0 16px;background:var(--uni-soft);border:1px solid #e4ebf4;border-radius:13px}
+#pt-verify .verify-filter label{display:grid;gap:6px;min-width:min(100%,280px);font-weight:700;color:#405675}
+#pt-verify .upi-payment-summary{margin:14px 0 18px}
+#pt-receipts #allReceipts,#pt-submissions #submissionReport,#pt-attendance #attendanceReport,#pt-due #dueReport{min-width:0;overflow-x:auto}
+#pt-receipts>button{margin:0 8px 16px 0;min-height:42px;padding:0 15px}
+#pt-passwords>input{width:min(100%,420px);margin:0 10px 16px 0}
+#pt-passwords>button{min-height:42px;padding:0 16px}
+#pt-attendance>label{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;margin:0 0 14px;background:var(--uni-soft);border:1px solid #e4ebf4;border-radius:12px;font-weight:700;color:#405675}
+#pt-attendance>label select{min-width:220px}
+#pt-attendance>button{min-height:40px;padding:0 16px;margin-bottom:14px}
+#pt-submissions #submissionReport{padding:16px;background:#f8fafd;border:1px solid #e4ebf4;border-radius:13px}
+#pt-exams #examForm{display:grid;grid-template-columns:repeat(2,minmax(210px,1fr));gap:14px;padding:20px;background:linear-gradient(135deg,#f5f8fd,#fff);border:1px solid var(--uni-line);border-radius:15px;align-items:end}
+#pt-exams #examForm input,#pt-exams #examForm select{width:100%}
+#pt-exams #examForm label{display:grid;gap:6px;color:#405675;font-weight:700}
+#pt-exams #examForm button{min-height:44px;justify-self:start;padding:0 22px}
+#pt-due #dueReport{padding:14px;background:#f8fafd;border:1px solid #e4ebf4;border-radius:13px}
+#pt-batches .batch-stats{gap:14px}
+#pt-batches .batch-stat{border:1px solid #dce6f2;border-radius:14px;box-shadow:0 5px 16px rgba(20,43,77,.045)}
+#pt-batches .batch-picker{border:1px solid var(--uni-line);border-radius:15px;background:#f8fafd;padding:20px}
+#pt-assignments .assignment-portal-head{box-shadow:0 10px 26px rgba(25,55,95,.08)}
+#pt-assignments .assignment-library{gap:16px}
+#pt-assignments .assignment-library>*{border-radius:14px}
+#pt-submissions .toolbar{justify-content:flex-end}
+@media(max-width:760px){
+ #pt-fees #offlineFeeForm,#pt-exams #examForm{grid-template-columns:1fr}
+ #pt-fees #offlineFeeForm button,#pt-exams #examForm button{grid-column:auto;width:100%}
+ #pt-students:not([hidden]),#pt-fees:not([hidden]),#pt-verify:not([hidden]),#pt-attendance:not([hidden]),#pt-batches:not([hidden]),#pt-receipts:not([hidden]),#pt-passwords:not([hidden]),#pt-assignments:not([hidden]),#pt-submissions:not([hidden]),#pt-exams:not([hidden]),#pt-due:not([hidden]){padding:15px;border-radius:13px}
+}
+
+
+/* BCIT PROFESSIONAL UNIVERSITY MANAGEMENT PORTAL — visual-only refinement */
+:root{
+  --uni-navy:#10243d;
+  --uni-blue:#174b7a;
+  --uni-blue-deep:#0d2b49;
+  --uni-orange:#f4770b;
+  --uni-ink:#172638;
+  --uni-muted:#68788b;
+  --uni-line:#dce4ed;
+  --uni-surface:#ffffff;
+  --uni-canvas:#f3f6fa;
+}
+body{background:linear-gradient(135deg,#eef3f8 0%,#f7f9fc 55%,#edf2f7 100%);color:var(--uni-ink)}
+body>header,header{
+  background:linear-gradient(112deg,#0c223a 0%,#173f65 72%,#20547e 100%)!important;
+  color:#fff!important;border:0!important;border-bottom:4px solid var(--uni-orange)!important;
+  box-shadow:0 8px 24px rgba(12,34,58,.18)!important;padding:18px 3.2%!important;
+}
+header .brand{color:#fff!important;font-size:clamp(15px,1.6vw,21px)!important;font-weight:800!important;letter-spacing:.35px}
+header h1{color:#fff!important;font-size:clamp(21px,2.1vw,29px)!important;margin:4px 0 0!important;font-weight:800!important}
+header button,header .logout{border-radius:8px!important;font-weight:700!important}
+main, #portalAdminPanel{max-width:1500px;margin-left:auto!important;margin-right:auto!important}
+main{padding:24px 3%!important}
+#portalAdminPanel{
+  background:transparent!important;border:0!important;border-radius:0!important;
+  padding:22px 3%!important;margin-top:10px!important;
+}
+#portalAdminPanel>h2{
+  color:var(--uni-navy)!important;font-size:clamp(23px,2vw,30px)!important;
+  font-weight:800!important;margin:0 0 18px!important;padding:0 0 14px!important;
+  border-bottom:1px solid #d7e0e9;letter-spacing:.15px;
+}
+#portalTabs{
+  display:flex!important;align-items:center!important;gap:8px!important;flex-wrap:wrap!important;
+  padding:12px!important;margin:0 0 20px!important;border:1px solid #dce5ee!important;
+  border-radius:13px!important;background:#fff!important;box-shadow:0 5px 18px rgba(20,48,77,.06)!important;
+  position:sticky;top:8px;z-index:20;
+}
+#portalTabs .tab{
+  flex:0 0 auto!important;min-height:40px!important;padding:10px 15px!important;
+  border:1px solid #dce5ee!important;border-radius:8px!important;background:#f6f8fb!important;
+  color:#344a61!important;font-size:13px!important;font-weight:700!important;
+  letter-spacing:.1px!important;box-shadow:none!important;transition:background .18s,border-color .18s,color .18s,transform .18s;
+}
+#portalTabs .tab:hover{background:#eaf1f8!important;border-color:#b8cadb!important;transform:translateY(-1px)}
+#portalTabs .tab.active,#portalTabs .tab[aria-selected=true]{background:var(--uni-blue-deep)!important;color:#fff!important;border-color:var(--uni-blue-deep)!important;box-shadow:inset 0 -3px 0 var(--uni-orange)!important}
+#portalAdminPanel .pt-panel[hidden]{display:none!important}
+#portalAdminPanel .pt-panel:not([hidden]){
+  display:block!important;background:#fff!important;border:1px solid #dce4ed!important;
+  border-radius:14px!important;padding:clamp(18px,2.3vw,28px)!important;
+  box-shadow:0 8px 28px rgba(22,48,76,.07)!important;min-width:0!important;
+}
+#portalAdminPanel .pt-panel>h3{
+  color:var(--uni-navy)!important;font-size:22px!important;font-weight:800!important;
+  margin:0 0 19px!important;padding:0 0 13px!important;border-bottom:1px solid #e5ebf1!important;
+}
+#portalAdminPanel .pt-panel h4{color:#1b3d5d!important;font-weight:800!important}
+#portalAdminPanel .pt-panel .muted,#portalAdminPanel .pt-panel p{color:#66778a}
+#portalAdminPanel .pt-panel .toolbar,#portalAdminPanel .pt-panel form.toolbar{
+  display:flex;align-items:center;gap:11px;flex-wrap:wrap;padding:15px!important;
+  margin:0 0 18px!important;background:#f6f8fb!important;border:1px solid #e2e8ef!important;
+  border-radius:10px!important;
+}
+#portalAdminPanel input:not([type=checkbox]):not([type=radio]),
+#portalAdminPanel select,#portalAdminPanel textarea{
+  min-height:42px;border:1px solid #cbd6e1!important;border-radius:7px!important;
+  background:#fff!important;color:#1d2f42!important;padding:10px 12px!important;
+  box-shadow:inset 0 1px 2px rgba(15,35,55,.025)!important;max-width:100%;
+}
+#portalAdminPanel input:focus,#portalAdminPanel select:focus,#portalAdminPanel textarea:focus{
+  outline:0!important;border-color:#3975a8!important;box-shadow:0 0 0 3px rgba(38,104,158,.12)!important;
+}
+#portalAdminPanel button{
+  min-height:39px;border-radius:7px!important;font-weight:700!important;letter-spacing:.05px;
+}
+#portalAdminPanel .tablebox{
+  overflow:auto!important;border:1px solid #dce4ed!important;border-radius:10px!important;
+  background:#fff!important;box-shadow:none!important;margin:0 0 16px!important;
+}
+#portalAdminPanel table{width:100%;border-collapse:separate!important;border-spacing:0!important;min-width:650px}
+#portalAdminPanel th{
+  background:#edf2f7!important;color:#243e58!important;font-weight:800!important;
+  text-transform:uppercase;font-size:11px!important;letter-spacing:.55px!important;
+  padding:13px 14px!important;border-bottom:1px solid #d8e1ea!important;white-space:nowrap;
+}
+#portalAdminPanel td{padding:12px 14px!important;border-bottom:1px solid #edf1f5!important;color:#304255!important;vertical-align:middle}
+#portalAdminPanel tbody tr:hover td{background:#f8fafc!important}
+#portalAdminPanel tbody tr:last-child td{border-bottom:0!important}
+#portalAdminPanel .stat,#portalAdminPanel .batch-stat,#portalAdminPanel .attendance-card{
+  border:1px solid #dce5ed!important;border-radius:11px!important;background:#fff!important;
+  box-shadow:0 4px 15px rgba(20,48,77,.045)!important;
+}
+#pt-fees #offlineFeeForm{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px!important;align-items:end}
+#pt-fees #offlineFeeForm button{justify-self:start}
+#pt-verify .verify-filter{background:#f6f8fb!important;border:1px solid #e1e8ef!important;border-radius:10px!important;padding:14px!important;margin-bottom:16px!important}
+#pt-receipts #allReceipts,#pt-submissions #submissionReport,#pt-attendance #attendanceReport,#pt-due #dueReport{overflow:auto;max-width:100%}
+#pt-exams #examForm{background:#f7f9fc!important;border:1px solid #e1e8ef!important;border-radius:11px!important;padding:18px!important}
+#pt-exams #onlineQuestionBuilder{background:#f7f9fc!important;border:1px solid #dce5ed!important;border-radius:11px!important}
+#pt-assignments .assignment-portal-head{border-radius:12px!important;box-shadow:none!important}
+#pt-assignments .assignment-portal-head h3{border:0!important}
+#portalMessage{margin:0 0 14px!important}
+@media(max-width:760px){
+  #portalAdminPanel{padding:12px 3%!important}
+  #portalTabs{position:static;gap:7px!important;padding:9px!important}
+  #portalTabs .tab{font-size:12px!important;padding:9px 11px!important;min-height:38px!important}
+  #portalAdminPanel .pt-panel:not([hidden]){padding:16px!important}
+  #pt-fees #offlineFeeForm{grid-template-columns:1fr!important}
+  #portalAdminPanel .pt-panel .toolbar{align-items:stretch}
+  #portalAdminPanel .pt-panel .toolbar>*{max-width:100%;width:100%}
+}
+
+
+
+/* BCIT section-specific university portal illustrations */
+.section-illustration{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:142px;margin:0 0 22px;padding:18px 26px;overflow:hidden;border:1px solid #dfe7f1;border-radius:18px;background:linear-gradient(110deg,#f7faff 0%,#eef4fc 58%,#fff8ef 100%);box-shadow:0 8px 24px rgba(21,48,83,.055)}
+.section-illustration:before{content:"";position:absolute;z-index:-1;inset:auto 0 0;height:4px;background:linear-gradient(90deg,#244f91,#4e83c9,#f09a35)}
+.section-illustration-copy{position:relative;z-index:2;display:flex;flex:1;flex-direction:column;gap:9px;min-width:0}
+.section-illustration-copy span{color:#244b7c;font:800 11px/1.3 Arial,sans-serif;letter-spacing:1.65px}
+.section-illustration-copy small{max-width:470px;color:#64758b;font:500 13px/1.6 Arial,sans-serif}
+.section-illustration svg{position:relative;z-index:2;display:block;flex:0 0 230px;width:230px;height:132px;max-width:42%;overflow:visible}
+.section-illustration-orb{position:absolute;z-index:0;border-radius:50%;pointer-events:none}
+.section-illustration-orb-one{width:190px;height:190px;right:72px;top:-95px;background:rgba(89,132,194,.08)}
+.section-illustration-orb-two{width:105px;height:105px;right:8px;bottom:-66px;background:rgba(241,160,62,.12)}
+.pt-panel>h3{margin-top:2px}
+@media(max-width:640px){.section-illustration{min-height:116px;padding:15px 16px;gap:8px;margin-bottom:17px}.section-illustration-copy span{font-size:9px;letter-spacing:1px}.section-illustration-copy small{font-size:11px;line-height:1.45}.section-illustration svg{flex-basis:122px;width:122px;height:94px;max-width:40%}.section-illustration-orb-one{right:24px}}
+@media(max-width:390px){.section-illustration{padding:12px}.section-illustration svg{flex-basis:96px;width:96px;height:82px}.section-illustration-copy small{font-size:10px}}
+
+
+
+/* FINAL FIX: all 12 Student & Portal tabs stay on one horizontal row */
+#portalAdminPanel #portalTabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+#portalAdminPanel #portalTabs .tab {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+
+/* UPI verification: keep amount and payment timestamp in separate readable columns. */
+#pt-verify .upi-verification-tablebox{width:100%;max-width:100%;overflow-x:auto!important;overscroll-behavior-x:contain}
+#pt-verify table.upi-payment-table{width:100%;min-width:1120px;table-layout:fixed;white-space:normal}
+#pt-verify .upi-payment-table th,#pt-verify .upi-payment-table td{white-space:normal;overflow-wrap:anywhere;word-break:normal}
+#pt-verify .upi-payment-table th:nth-child(1){width:19%}
+#pt-verify .upi-payment-table th:nth-child(2){width:11%}
+#pt-verify .upi-payment-table th:nth-child(3){width:12%}
+#pt-verify .upi-payment-table th:nth-child(4){width:24%}
+#pt-verify .upi-payment-table th:nth-child(5){width:22%}
+#pt-verify .upi-payment-table th:nth-child(6){width:12%}
+#pt-verify .upi-payment-table .upi-amount-cell,#pt-verify .upi-payment-table .upi-balance-cell{white-space:nowrap;font-weight:700;font-variant-numeric:tabular-nums}
+#pt-verify .upi-payment-table .upi-details-cell input{display:block;width:100%;min-width:0;margin:0 0 8px;box-sizing:border-box}
+#pt-verify .upi-payment-table .upi-details-cell input:last-child{margin-bottom:0}
+#pt-verify .upi-payment-table .upi-datetime-cell span{display:block;line-height:1.5;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#pt-verify .upi-payment-table .upi-datetime-cell a{display:inline-block;margin-top:7px}
+#pt-verify .upi-payment-table .upi-action-cell button{white-space:normal;min-width:96px;max-width:100%;line-height:1.35}
+
+</style>
+  </head>
+
+  <body>
+    <div id="bcitToast" role="status" aria-live="polite"></div>
+
+    <header>
+      <div style="display: flex; align-items: center; gap: 14px">
+        <img src="/bcit-logo.jpeg" alt="BCIT logo"
+          style="width: 58px; height: 58px; object-fit: contain; background: #fff; border-radius: 12px; padding: 4px;" />
+        <div>
+          <div class="brand">BAJRANG COMPUTER INSTITUTE OF TECHNOLOGY</div>
+          <h1>Admin Dashboard</h1>
+        </div>
+      </div>
+      <form method="post" action="/admin/logout">
+        <button class="logout" type="submit">Log out</button>
+      </form>
+    </header>
+
+    <main class="wrap">
+      <div class="notice">
+        <strong>Office payment verification:</strong> After admission, check the
+        student's receipt and payment proof at the office. Click
+        <strong>Mark Verified</strong> only after confirming the details. If the
+        payment proof cannot be confirmed, keep the status as
+        <strong>Pending</strong>. This dashboard update does not change the
+        receipt format or content. Student data is confidential; please log out
+        after completing your work.
+      </div>
+
+      <section class="cards">
+        <article class="stat"><div class="label">TOTAL ADMISSIONS</div><div class="num" id="admissionCount">—</div></article>
+        <article class="stat"><div class="label">TOTAL ENQUIRIES</div><div class="num" id="enquiryCount">—</div></article>
+        <article class="stat"><div class="label">STUDENTS VERIFIED</div><div class="num" id="paidCount">—</div></article>
+        <article class="stat"><div class="label">PENDING PAYMENTS</div><div class="num" id="pendingCount">—</div></article>
+      </section>
+
+      <nav class="tabs">
+        <button class="tab active" id="admissionTab" onclick="showTab('admissions')">Admissions</button>
+        <button class="tab" id="enquiryTab" onclick="showTab('enquiries')">Enquiries</button>
+        <button class="tab" id="portalTab" onclick="showTab('portal')">Student &amp; Portal Management</button>
+      </nav>
+
+      <div class="toolbar" id="mainToolbar">
+        <input id="search" type="search" placeholder="Search name, mobile, email, course…" oninput="renderTable()" />
+        <button onclick="loadData()">↻ Refresh</button>
+        <button onclick="exportCsv()">Export CSV</button>
+        <button id="deleteAllEnquiriesBtn" type="button" onclick="deleteAllEnquiries()"
+                style="display:none;background:#dc2626;color:#fff;border-color:#dc2626;">
+          Delete All Enquiries
+        </button>
+      </div>
+
+      <div class="tablebox" id="mainTable">
+        <table>
+          <thead id="tableHead"></thead>
+          <tbody id="tableBody"><tr><td class="empty">Loading records…</td></tr></tbody>
+        </table>
+      </div>
+      <div class="status" id="status"></div>
+    </main>
+
+    <section id="portalAdminPanel" style="display:none;background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-top:14px;">
+      <h2 style="margin-top:4px">Student &amp; Portal Management</h2>
+
+      <nav class="tabs" id="portalTabs">
+        <button class="tab active" data-pt="students">Students</button>
+        <button class="tab" data-pt="fees">Fee Entry</button>
+        <button class="tab" data-pt="verify">UPI Verification</button>
+        <button class="tab" data-pt="receipts">All Fee Receipts</button>
+        <button class="tab" data-pt="attendance">Attendance</button>
+        <button class="tab" data-pt="batches">Attendance Batches</button>
+        <button class="tab" data-pt="passwords">Student Password</button>
+        <button class="tab" data-pt="due">Pending Fees</button>
+        <button class="tab" data-pt="assignments">Assignments</button>
+        <button class="tab" data-pt="submissions">Submissions</button>
+        <button class="tab" data-pt="exams">Exams &amp; Results</button>
+        <button class="tab" data-pt="materials">Study Materials</button>
+      </nav>
+
+      <div id="portalMessage" class="status" role="status"></div>
+
+      <div id="pt-students" class="pt-panel">
+        <div class="section-illustration section-illustration-students" role="img" aria-label="Student Information System illustration">
+          <div class="section-illustration-copy"><span>STUDENT INFORMATION SYSTEM</span><small>Student records · enrolment · academic profiles</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="30" y="28" width="150" height="94" rx="12" fill="#fff" stroke="#d9e5f2" stroke-width="2"/><rect x="43" y="41" width="37" height="37" rx="10" fill="#e8f0ff"/><circle cx="61.5" cy="54" r="8" fill="#4778cf"/><path d="M48 72c2-9 25-9 27 0" fill="#4778cf"/><rect x="91" y="45" width="70" height="7" rx="3.5" fill="#b8c9df"/><rect x="91" y="59" width="55" height="6" rx="3" fill="#d7e1ee"/><rect x="43" y="91" width="118" height="8" rx="4" fill="#edf2f8"/><rect x="43" y="105" width="82" height="6" rx="3" fill="#edf2f8"/><circle cx="193" cy="54" r="19" fill="#f7a23b" opacity=".18"/><path d="M184 54l6 6 12-14" fill="none" stroke="#e58a22" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>Student List</h3>
+        <div class="toolbar">
+          <input id="portalStudentSearch" placeholder="Search Student ID, name or course" />
+          <button onclick="loadPortalStudents()">Refresh</button>
+        </div>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>Student ID</th><th>Name</th><th>Course</th><th>Remaining Fee</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="portalStudentsRows"></tbody>
+          </table>
+        </div>
+        <p class="muted">Edit changes only the Student ID. Permanently Delete removes the student and their linked portal records.</p>
+      </div>
+
+      <div id="pt-fees" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-fees" role="img" aria-label="Finance & Fee Management illustration">
+          <div class="section-illustration-copy"><span>FINANCE & FEE MANAGEMENT</span><small>Fee collection · payment entries · account tracking</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="48" y="27" width="128" height="96" rx="13" fill="#fff" stroke="#d9e5f2" stroke-width="2"/><rect x="62" y="42" width="100" height="25" rx="7" fill="#eaf2ff"/><path d="M76 54h27" stroke="#6c8fca" stroke-width="5" stroke-linecap="round"/><circle cx="144" cy="54" r="7" fill="#f2a13b"/><rect x="63" y="80" width="42" height="28" rx="7" fill="#fff4e6"/><path d="M84 85v18m-7-13h12m-12 8h12" stroke="#d98522" stroke-width="2.5" stroke-linecap="round"/><rect x="115" y="82" width="47" height="6" rx="3" fill="#b9cbe2"/><rect x="115" y="94" width="34" height="6" rx="3" fill="#dbe4ef"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>Cash / Offline Fee Entry</h3>
+        <form id="offlineFeeForm" class="toolbar">
+          <input name="student_id" type="text" placeholder="Student ID" required />
+          <input name="amount" type="number" min="1" placeholder="Amount ₹" required />
+          <select name="mode">
+            <option value="cash">Cash</option>
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="cheque">Cheque</option>
+            <option value="other">Other</option>
+          </select>
+          <input name="reference" placeholder="Note (optional)" />
+          <button type="submit">Save Fee &amp; Continue</button>
+        </form>
+      </div>
+
+      <div id="pt-verify" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-verify" role="img" aria-label="Secure Payment Review illustration">
+          <div class="section-illustration-copy"><span>SECURE PAYMENT REVIEW</span><small>UPI verification · transaction checks · approval workflow</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M112 24l55 19v34c0 27-18 45-55 59-37-14-55-32-55-59V43z" fill="#eaf2ff" stroke="#9bb6e2" stroke-width="2"/><path d="M112 39l40 14v24c0 19-13 33-40 44-27-11-40-25-40-44V53z" fill="#fff"/><path d="M91 78l14 14 29-31" fill="none" stroke="#2b9a70" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><circle cx="177" cy="43" r="12" fill="#f6a23b"/><path d="M177 37v12m-5-6h10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>UPI Payment Verification</h3>
+        <p class="section-kicker">Accounts office · payment review desk</p>
+        <div class="verify-filter">
+          <label>Filter by Student ID
+            <input id="upiStudentIdFilter" type="search" placeholder="Enter Student ID to filter pending UPI payments" oninput="renderPendingPayments()" />
+          </label>
+          <button type="button" onclick="clearUpiStudentFilter()">Clear Filter</button>
+          <button type="button" onclick="loadPendingPayments()">↻ Refresh Data</button>
+        </div>
+        <div class="verify-summary" id="upiVerifySummary"></div>
+        <div class="tablebox upi-verification-tablebox">
+          <table class="upi-payment-table">
+            <thead><tr><th>Student / Student ID</th><th>Payment Amount</th><th>Remaining Fee</th><th>UTR / Verification Details</th><th>Payment Date &amp; Time</th><th>Action</th></tr></thead>
+            <tbody id="pendingPaymentRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="pt-receipts" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-receipts" role="img" aria-label="Receipt & Transaction Archive illustration">
+          <div class="section-illustration-copy"><span>RECEIPT & TRANSACTION ARCHIVE</span><small>Verified receipts · print records · payment history</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M67 25h82l20 20v80H67z" fill="#fff" stroke="#cbd9e9" stroke-width="2"/><path d="M149 25v22h20" fill="#eaf2ff" stroke="#cbd9e9" stroke-width="2"/><rect x="84" y="56" width="62" height="7" rx="3.5" fill="#6f91c5"/><rect x="84" y="73" width="81" height="6" rx="3" fill="#d7e1ee"/><rect x="84" y="87" width="72" height="6" rx="3" fill="#d7e1ee"/><rect x="84" y="101" width="42" height="6" rx="3" fill="#d7e1ee"/><circle cx="163" cy="105" r="18" fill="#e8f6ef"/><path d="M154 105l6 6 12-14" fill="none" stroke="#2d9a70" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>All Fee Payments &amp; Receipts</h3>
+        <p>Select exactly two verified receipts of different students to print together on one A4 sheet (top and bottom).</p>
+        <button onclick="printSelectedTwoReceipts()">Print 2 Selected Receipts on A4</button>
+        <button onclick="loadAllReceipts()">Refresh</button>
+        <div id="allReceipts"></div>
+      </div>
+
+      <div id="pt-batches" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-batches" role="img" aria-label="Academic Batch Coordination illustration">
+          <div class="section-illustration-copy"><span>ACADEMIC BATCH COORDINATION</span><small>Class groups · student allocation · daily operations</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="105" cy="48" r="17" fill="#e7efff"/><circle cx="65" cy="65" r="13" fill="#fcebd8"/><circle cx="145" cy="65" r="13" fill="#e4f4ed"/><path d="M75 105c2-22 58-22 60 0v10H75z" fill="#6e91cc"/><path d="M39 111c2-17 43-17 45 0v5H39z" fill="#f1a34a"/><path d="M126 111c2-17 43-17 45 0v5h-45z" fill="#4ca88a"/><path d="M105 31v-9m-5 4h10" stroke="#6e91cc" stroke-width="3" stroke-linecap="round"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <div class="batch-hero">
+          <div>
+            <div class="section-kicker" style="color:#b9d1ff">Academic operations · attendance</div>
+            <h3>Attendance Batch Management</h3>
+            <p>Organise registered students into focused classes and manage daily attendance.</p>
+          </div>
+          <button type="button" onclick="toggleBatchStudentPicker()">＋ Create New Batch</button>
+        </div>
+        <div class="batch-stats">
+          <div class="batch-stat"><small>REGISTERED STUDENTS</small><strong id="batchRegisteredCount">—</strong></div>
+          <div class="batch-stat"><small>TOTAL BATCHES</small><strong id="batchTotalCount">—</strong></div>
+          <div class="batch-stat"><small>STUDENTS ASSIGNED</small><strong id="batchAssignedCount">—</strong></div>
+          <div class="batch-stat"><small>MAXIMUM PER BATCH</small><strong>15</strong></div>
+        </div>
+        <form id="batchForm" class="batch-picker" hidden>
+          <div class="section-kicker">New academic batch</div>
+          <h3 style="margin:5px 0 12px">Batch Details &amp; Student Allocation</h3>
+          <div class="portal-toolbar" style="margin:0">
+            <input id="batchName" placeholder="Enter batch name (e.g. DCA Morning Batch)" required />
+            <input id="batchStudentSearch" type="search" placeholder="Search Student ID or name" oninput="filterBatchStudentChoices()" />
+            <span id="batchSelectedCount" style="font-weight:800;color:#245be7">0 / 15 selected</span>
+          </div>
+          <div id="batchStudentChoices" class="student-choice-grid"></div>
+          <div class="batch-actions">
+            <button type="submit">Create Batch</button>
+            <button type="button" onclick="closeBatchPicker()">Cancel</button>
+          </div>
+        </form>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px">
+          <div><div class="section-kicker">Academic structure</div><h3 style="margin:5px 0">Created Attendance Batches</h3></div>
+          <button type="button" onclick="loadBatchSetup()">↻ Refresh Batches</button>
+        </div>
+        <div id="createdBatches" class="batch-grid"></div>
+      </div>
+
+      <div id="pt-passwords" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-passwords" role="img" aria-label="Student Access & Security illustration">
+          <div class="section-illustration-copy"><span>STUDENT ACCESS & SECURITY</span><small>Login credentials · account access · password control</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="54" y="57" width="116" height="69" rx="11" fill="#fff" stroke="#d4e0ef" stroke-width="2"/><rect x="68" y="71" width="88" height="9" rx="4.5" fill="#eaf0f8"/><rect x="68" y="88" width="58" height="8" rx="4" fill="#eaf0f8"/><path d="M90 58V45a22 22 0 0144 0v13" fill="none" stroke="#6d8fc7" stroke-width="8" stroke-linecap="round"/><circle cx="112" cy="101" r="7" fill="#f0a03d"/><path d="M112 108v7" stroke="#f0a03d" stroke-width="3" stroke-linecap="round"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>Student Login Password</h3>
+        <p>All registered students are listed here. Set or change a password (minimum 8 characters) for Student Profile login.</p>
+        <input id="passwordStudentSearch" placeholder="Search Student ID or name" oninput="renderPasswordStudents()" />
+        <button type="button" onclick="loadPasswordStudents()">Refresh</button>
+        <div class="tablebox">
+          <table>
+            <thead><tr><th>Student ID</th><th>Student Name</th><th>Login Password</th><th>Action</th></tr></thead>
+            <tbody id="passwordStudentRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="pt-attendance" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-attendance" role="img" aria-label="Attendance & Class Monitoring illustration">
+          <div class="section-illustration-copy"><span>ATTENDANCE & CLASS MONITORING</span><small>Daily presence · attendance reports · class participation</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="44" y="27" width="145" height="101" rx="11" fill="#fff" stroke="#d5e1ef" stroke-width="2"/><rect x="44" y="27" width="145" height="24" rx="10" fill="#eaf1ff"/><path d="M44 43h145" stroke="#eaf1ff" stroke-width="12"/><path d="M70 20v16m93-16v16" stroke="#7896c9" stroke-width="5" stroke-linecap="round"/><g fill="#dce7f4"><rect x="61" y="63" width="17" height="14" rx="3"/><rect x="88" y="63" width="17" height="14" rx="3"/><rect x="115" y="63" width="17" height="14" rx="3"/><rect x="142" y="63" width="17" height="14" rx="3"/></g><g fill="#53ad89"><rect x="61" y="86" width="17" height="14" rx="3"/><rect x="88" y="86" width="17" height="14" rx="3"/><rect x="142" y="86" width="17" height="14" rx="3"/></g><rect x="115" y="86" width="17" height="14" rx="3" fill="#f4b45f"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>Attendance</h3>
+        <label>Take attendance batch-wise
+          <select id="attendanceBatch" onchange="loadAttendance()"><option value="">All students</option></select>
+        </label>
+        <p id="attendanceToday"></p>
+        <button onclick="loadAttendance()">Refresh List</button>
+        <div id="attendanceReport"></div>
+      </div>
+
+      <!-- FIXED: Pending Fees panel -->
+      <div id="pt-due" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-due" role="img" aria-label="Outstanding Fee Monitor illustration">
+          <div class="section-illustration-copy"><span>OUTSTANDING FEE MONITOR</span><small>Pending balances · follow-up list · financial status</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="50" y="29" width="130" height="93" rx="12" fill="#fff" stroke="#d7e1ef" stroke-width="2"/><circle cx="82" cy="62" r="17" fill="#fff0df"/><path d="M82 51v22m-7-15h12m-12 8h12" stroke="#d98b2e" stroke-width="2.5" stroke-linecap="round"/><rect x="108" y="51" width="55" height="7" rx="3.5" fill="#aebfd6"/><rect x="108" y="65" width="42" height="6" rx="3" fill="#dce5ef"/><path d="M69 91h91" stroke="#e5ebf3" stroke-width="5" stroke-linecap="round"/><path d="M69 91h54" stroke="#efa044" stroke-width="5" stroke-linecap="round"/><circle cx="163" cy="102" r="13" fill="#fff0df"/><path d="M163 95v8m0 5v.5" stroke="#d98b2e" stroke-width="3" stroke-linecap="round"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>Students with Pending Fees</h3>
+        <p>View students who have outstanding course fees.</p>
+        <div class="toolbar">
+          <button type="button" onclick="loadDue()">↻ Refresh Pending Fees</button>
+        </div>
+        <div id="dueReport">
+          <p class="empty">Click Refresh to load pending fee records.</p>
+        </div>
+      </div>
+
+      <div id="pt-assignments" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-assignments" role="img" aria-label="Coursework & Assignment Hub illustration">
+          <div class="section-illustration-copy"><span>COURSEWORK & ASSIGNMENT HUB</span><small>Create assignments · publish tasks · manage deadlines</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M65 28h82l19 19v78H65z" fill="#fff" stroke="#cbd9e9" stroke-width="2"/><path d="M147 28v21h19" fill="#eaf2ff" stroke="#cbd9e9" stroke-width="2"/><path d="M85 66h60m-60 15h49m-49 15h38" stroke="#c4d2e4" stroke-width="6" stroke-linecap="round"/><path d="M136 103l26-26 12 12-26 26-15 4z" fill="#f2a044"/><path d="M136 103l12 12" stroke="#fff" stroke-width="3"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <section class="assignment-portal-head">
+          <div>
+            <span class="assignment-kicker">ACADEMIC WORKSPACE</span>
+            <h3>Assignment Management Portal</h3>
+            <p>Create coursework, publish question papers and manage assignment deadlines for BCIT students.</p>
+          </div>
+          <div class="assignment-head-mark" aria-hidden="true">✎</div>
+        </section>
+
+        <section class="assignment-create-card">
+          <div class="assignment-section-heading">
+            <div><span class="assignment-step">01 · PUBLISH</span><h4>Create New Assignment</h4><p>Enter assignment details and attach the question paper.</p></div>
+          </div>
+          <form id="assignmentForm" class="toolbar assignment-create-form" enctype="multipart/form-data">
+            <label class="assignment-field assignment-field-wide">Assignment Title
+              <input name="title" placeholder="e.g. Computer Fundamentals – Unit 1" required />
+            </label>
+            <label class="assignment-field assignment-field-wide">Description / Instructions
+              <input name="description" placeholder="Briefly describe the task and instructions" />
+            </label>
+            <label class="assignment-field">Course / Programme
+              <select name="course">
+                <option value="">All Courses</option>
+                <option value="ADCA">ADCA</option>
+                <option value="DCA">DCA</option>
+                <option value="DFA">DFA</option>
+                <option value="PGDCA">PGDCA</option>
+                <option value="DTTP">DTTP</option>
+              </select>
+            </label>
+            <label class="assignment-field">Submission Deadline
+              <input name="due_date" type="datetime-local" required />
+            </label>
+            <label class="assignment-field assignment-upload-field">Question Paper / Assignment File
+              <span class="assignment-upload-hint">Accepted: PDF, DOC, DOCX, PPT, PPTX, JPG, PNG · Maximum 5 MB</span>
+              <input name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png" required />
+            </label>
+            <div class="assignment-form-actions"><span>Students cannot submit after the deadline.</span><button type="submit">＋ Publish Assignment</button></div>
+          </form>
+        </section>
+
+        <section class="assignment-list-section">
+          <div class="assignment-section-heading assignment-list-heading">
+            <div><span class="assignment-step">02 · COURSEWORK</span><h4>Published Assignments</h4><p>Review published tasks, update question files or remove an assignment.</p></div>
+            <span class="assignment-live-label"><i></i> Assignment Library</span>
+          </div>
+          <div id="adminAssignmentList" class="assignment-library"></div>
+        </section>
+      </div>
+
+      <!-- FIXED: Assignment Submissions panel -->
+      <div id="pt-submissions" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-submissions" role="img" aria-label="Student Work Submissions illustration">
+          <div class="section-illustration-copy"><span>STUDENT WORK SUBMISSIONS</span><small>Uploaded files · review queue · submission tracking</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M55 83c0-15 12-27 27-27 5-17 21-28 39-25 16 2 27 14 29 29 15 0 27 12 27 27 0 15-12 26-27 26H82C67 113 55 101 55 83z" fill="#eaf2ff" stroke="#a9bfdf" stroke-width="2"/><path d="M112 94V58m-14 14l14-14 14 14" fill="none" stroke="#557fc1" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M87 101h50" stroke="#9cb3d5" stroke-width="4" stroke-linecap="round"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>Student Assignment Submissions</h3>
+        <p>View student assignment submissions and download their uploaded files.</p>
+        <div class="toolbar">
+          <button type="button" onclick="loadSubmissions()">↻ Refresh Submissions</button>
+        </div>
+        <div id="submissionReport">
+          <p class="empty">Click Refresh to load assignment submissions.</p>
+        </div>
+      </div>
+
+      <div id="pt-exams" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-exams" role="img" aria-label="Examination & Result Management illustration">
+          <div class="section-illustration-copy"><span>EXAMINATION & RESULT MANAGEMENT</span><small>Exam setup · evaluation · student performance</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="45" y="27" width="145" height="100" rx="11" fill="#fff" stroke="#d4e0ee" stroke-width="2"/><rect x="60" y="43" width="51" height="9" rx="4.5" fill="#c7d5e8"/><path d="M63 105V88m24 17V73m24 32V81m24 24V61m24 44V49" stroke="#6d91ca" stroke-width="10" stroke-linecap="round"/><path d="M60 111h116" stroke="#dbe4ef" stroke-width="2"/><path d="M144 45l8-8 8 8" fill="none" stroke="#f0a03f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <h3>Exams &amp; Results</h3>
+        <form id="examForm" class="toolbar">
+          <input name="exam_code" placeholder="Exam ID (letters / numbers)" required />
+          <input name="title" placeholder="Exam title" required />
+          <input name="subject" placeholder="Subject" required />
+          <input name="exam_date" type="date" />
+          <textarea name="instructions" placeholder="Optional exam instructions for students" aria-label="Exam instructions" style="width:100%;min-height:76px;flex-basis:100%"></textarea>
+          <select name="exam_type" id="examType">
+            <option value="offline">Offline</option>
+            <option value="online">Online (MCQ)</option>
+          </select>
+          <input name="max_marks" type="number" value="100" placeholder="Max marks (offline)" />
+          <input name="pass_marks" type="number" value="33" placeholder="Pass marks" />
+          <label id="examDurationWrap" hidden>Time limit (minutes)
+            <input name="duration_minutes" id="examDuration" type="number" min="1" max="600" value="30" />
+          </label>
+          <button>Create Exam</button>
+        </form>
+        <div id="onlineQuestionBuilder" class="batch-picker" hidden>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+            <h4>Online Exam Questions (choose 1–50)</h4>
+            <label>Number of questions
+              <input id="onlineQuestionTarget" type="number" min="1" max="50" step="1" value="1" style="width:100px" />
+            </label>
+            <button type="button" onclick="setOnlineQuestionCount()">Set Question Count</button>
+            <button type="button" onclick="addOnlineQuestion()">＋ Add Question</button>
+          </div>
+          <p>Each question needs four options. Select the correct answer and marks.</p>
+          <div id="onlineQuestionRows"></div>
+          <p id="onlineQuestionCount">0 / 50 questions</p>
+        </div>
+        <form id="marksForm" class="toolbar">
+          <input name="exam_id" type="text" placeholder="Exam ID" required />
+          <input name="student_id" type="text" placeholder="Student ID" required />
+          <input name="marks" type="number" step="0.5" placeholder="Marks" required />
+          <button>Save Marks</button>
+          <button type="button" onclick="loadExams()">View results</button>
+        </form>
+        <h4>Created Exams (Offline &amp; Online)</h4>
+        <div id="createdExamReport"></div>
+        <h4>Student Marks &amp; Results</h4>
+        <div style="display:flex;justify-content:flex-end;margin:8px 0">
+          <button type="button" class="danger" onclick="deleteAllExamResults()">Delete All Student Results</button>
+        </div>
+        <div id="examReport"></div>
+        <div class="toolbar" style="margin-top:22px;justify-content:space-between">
+          <h4 style="margin:0">Online Exam Violation Report</h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" onclick="loadExamViolations()">↻ Refresh Violations</button>
+            <button type="button" class="danger" onclick="deleteAllExamViolations()">Delete All Violations</button>
+          </div>
+        </div>
+        <div id="examViolationReport"><p class="empty">Loading violation report…</p></div>
+      </div>
+
+      <div id="pt-materials" class="pt-panel" hidden>
+        <div class="section-illustration section-illustration-materials" role="img" aria-label="Digital Learning Resource Centre illustration">
+          <div class="section-illustration-copy"><span>DIGITAL LEARNING RESOURCE CENTRE</span><small>Study notes · PDFs · video lectures · course resources</small></div>
+          <svg viewBox="0 0 230 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M49 46c23-10 43-7 63 5v69c-20-12-40-15-63-5z" fill="#eaf2ff" stroke="#9fb7dc" stroke-width="2"/><path d="M175 46c-23-10-43-7-63 5v69c20-12 40-15 63-5z" fill="#fff4e6" stroke="#e8bd83" stroke-width="2"/><path d="M62 63c14-5 27-3 39 3m-39 11c14-5 27-3 39 3m48-17c-14-5-27-3-39 3m39 11c-14-5-27-3-39 3" stroke="#9db3d3" stroke-width="4" stroke-linecap="round"/><path d="M112 51v69" stroke="#6f8fbe" stroke-width="3"/></svg>
+          <div class="section-illustration-orb section-illustration-orb-one"></div><div class="section-illustration-orb section-illustration-orb-two"></div>
+        </div>
+
+        <div class="materials-heading"><div><span class="materials-kicker">ACADEMIC RESOURCE CENTRE</span><h3>Study Materials &amp; Video Lectures</h3><p>Upload, organise and share learning resources with BCIT students.</p></div><div class="materials-heading-mark" aria-hidden="true">✦</div></div>
+        <section class="materials-upload-card" aria-labelledby="materialsUploadTitle">
+          <div class="materials-card-heading"><div class="materials-icon" aria-hidden="true">＋</div><div><h4 id="materialsUploadTitle">Add learning resource</h4><p>Complete the details below to publish material to the student portal.</p></div></div>
+          <form id="materialForm" class="materials-form" enctype="multipart/form-data">
+            <label class="materials-field materials-field-wide"><span>Material title <b>*</b></span><input name="title" placeholder="e.g. Computer Fundamentals – Chapter 1" required /><small>Give students a clear title so they can find the right resource.</small></label>
+            <label class="materials-field"><span>Resource type <b>*</b></span><select name="kind"><option value="pdf">PDF / Notes</option><option value="video">Video Lecture</option></select></label>
+            <label class="materials-field"><span>Assign to course</span><select name="course"><option value="">All Courses</option><option value="ADCA">ADCA</option><option value="DCA">DCA</option><option value="DFA">DFA</option><option value="PGDCA">PGDCA</option><option value="DTTP">DTTP</option></select></label>
+            <label class="materials-field materials-field-wide"><span>Video URL <em>Optional</em></span><input name="url" type="url" placeholder="https://www.youtube.com/watch?v=..." /><small>Use this field for a YouTube or other accessible video link.</small></label>
+            <div class="materials-field materials-field-wide"><span>Upload files <em>Optional</em></span><label class="materials-dropzone"><span class="materials-upload-symbol" aria-hidden="true">⇧</span><strong>Choose files to upload</strong><small>PDF, video, image, Word or ZIP · Multiple files supported</small><input name="file" type="file" multiple accept=".pdf,.mp4,.webm,.mov,.jpg,.jpeg,.png,.webp,.doc,.docx,.zip" /></label><small>Maximum 20 MB per file. You can add a video URL, upload files, or do both.</small></div>
+            <div class="materials-form-footer"><span>Fields marked * are required.</span><button type="submit">＋ &nbsp; Add Material(s)</button></div>
+          </form>
+        </section>
+        <section class="materials-library" aria-labelledby="materialsLibraryTitle"><div class="materials-library-heading"><span class="materials-kicker">RESOURCE LIBRARY</span><h4 id="materialsLibraryTitle">Added Study Materials</h4><p>Manage the resources currently available to students.</p></div><div id="adminMaterialList" class="materials-list"></div></section>
+      </div>
+    </section>
+
+    <script>
+      const state = { tab: "admissions", admissions: [], enquiries: [] };
+
+      const admissionCols = [
+        ["id", "ID"], ["student_name", "Student Name"],
+        ["father_name", "Father Name"], ["mother_name", "Mother Name"],
+        ["mobile", "Mobile"], ["email", "Email"], ["dob", "Date of Birth"],
+        ["gender", "Gender"], ["qualification", "Qualification"],
+        ["course", "Course"], ["admission_date", "Admission Date"],
+        ["address", "Address"], ["created_at", "Submitted At"],
+        ["admission_fee", "Fee (₹)"], ["payment_reference", "Payment Reference"],
+        ["payment_datetime", "Payment Date/Time"], ["payment_status", "Payment Status"]
+      ];
+
+      const enquiryCols = [
+        ["id", "ID"], ["name", "Name"], ["phone", "Mobile"],
+        ["email", "Email"], ["course", "Course"], ["message", "Message"],
+        ["created_at", "Submitted At"]
+      ];
+
+      function esc(v) {
+        return String(v ?? "").replace(/[&<>"']/g, c => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        })[c]);
+      }
+
+      async function loadData() {
+        document.getElementById("status").textContent = "Loading data…";
+        try {
+          const [a, e] = await Promise.all([
+            fetch("/api/admin/admissions", { cache: "no-store" }),
+            fetch("/api/admin/enquiries", { cache: "no-store" })
+          ]);
+          if ([a.status, e.status].some(s => s === 401 || s === 503)) {
+            location.href = "/admin/login";
+            return;
+          }
+          if (!a.ok || !e.ok) throw new Error("Unable to load records.");
+          state.admissions = await a.json();
+          state.enquiries = await e.json();
+
+          document.getElementById("admissionCount").textContent = state.admissions.length;
+          document.getElementById("enquiryCount").textContent = state.enquiries.length;
+          document.getElementById("paidCount").textContent = state.admissions.filter(x =>
+            ["paid", "verified"].includes(String(x.payment_status).toLowerCase())
+          ).length;
+          document.getElementById("pendingCount").textContent = state.admissions.filter(x =>
+            !["paid", "verified"].includes(String(x.payment_status).toLowerCase())
+          ).length;
+          renderTable();
+        } catch (err) {
+          document.getElementById("status").textContent =
+            err.message + " Check server and ADMIN_PASSWORD configuration.";
+        }
+      }
+
+      async function deleteAllEnquiries() {
+        if (state.tab !== "enquiries") return;
+
+        const confirmed = window.confirm(
+          "Are you sure you want to delete all enquiries? This action cannot be undone."
+        );
+        if (!confirmed) return;
+
+        const btn = document.getElementById("deleteAllEnquiriesBtn");
+        const originalText = btn.textContent.trim();
+        btn.disabled = true;
+        btn.textContent = "Please wait...";
+
+        try {
+          const result = await pjson("/api/admin/enquiries", {
+            method: "DELETE",
+            headers: { "Accept": "application/json" }
+          });
+          pmsg(result.message || "All enquiries deleted successfully.");
+          await loadData();
+        } catch (error) {
+          pmsg(error.message || "Failed to delete enquiries.");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = originalText || "Delete All Enquiries";
+        }
+      }
+
+      function showTab(tab) {
+        state.tab = tab;
+        document.getElementById("admissionTab").classList.toggle("active", tab === "admissions");
+        document.getElementById("enquiryTab").classList.toggle("active", tab === "enquiries");
+        document.getElementById("portalTab").classList.toggle("active", tab === "portal");
+        document.getElementById("mainToolbar").style.display = tab === "portal" ? "none" : "flex";
+        document.getElementById("mainTable").style.display = tab === "portal" ? "none" : "block";
+        document.getElementById("portalAdminPanel").style.display = tab === "portal" ? "block" : "none";
+        document.getElementById("deleteAllEnquiriesBtn").style.display =
+          tab === "enquiries" ? "inline-block" : "none";
+        if (tab !== "portal") renderTable();
+        else loadPortalStudents();
+      }
+
+      function renderTable() {
+        const cols = state.tab === "admissions" ? admissionCols : enquiryCols;
+        const q = document.getElementById("search").value.trim().toLowerCase();
+        const rows = state[state.tab].filter(r =>
+          Object.values(r).some(v => String(v ?? "").toLowerCase().includes(q))
+        );
+
+        document.getElementById("tableHead").innerHTML =
+          "<tr>" + cols.map(c => "<th>" + esc(c[1]) + "</th>").join("") + "</tr>";
+
+        document.getElementById("tableBody").innerHTML = rows.length
+          ? rows.map(r => "<tr>" + cols.map(c => {
+              let v = r[c[0]] ?? "—";
+              if (c[0] === "payment_status") {
+                let paid = ["paid", "verified"].includes(String(v).toLowerCase());
+                let label = paid ? "VERIFIED" : "PENDING";
+                return '<td><span class="pill ' + (paid ? "paid" : "") + '">' + label +
+                  '</span><div class="payment-actions"><button class="verify-btn" onclick="setPaymentStatus(' +
+                  Number(r.id) + ', &quot;verified&quot;, this)" ' + (paid ? "disabled" : "") +
+                  '>Mark Verified</button><button class="pending-btn" onclick="setPaymentStatus(' +
+                  Number(r.id) + ', &quot;pending&quot;, this)" ' + (!paid ? "disabled" : "") +
+                  ">Set Pending</button></div></td>";
+              }
+              return "<td>" + esc(v) + "</td>";
+            }).join("") + "</tr>").join("")
+          : '<tr><td class="empty" colspan="' + cols.length + '">No matching records found.</td></tr>';
+
+        document.getElementById("status").textContent =
+          "Showing " + rows.length + " of " + state[state.tab].length + " records.";
+      }
+
+      async function setPaymentStatus(id, status, button) {
+        const action = status === "verified"
+          ? "mark this payment as VERIFIED"
+          : "change this payment back to PENDING";
+        if (!confirm("Are you sure you want to " + action + "?")) return;
+
+        const cell = button.closest("td");
+        const buttons = cell.querySelectorAll("button");
+        buttons.forEach(b => b.disabled = true);
+        document.getElementById("status").textContent = "Updating payment status…";
+
+        try {
+          const response = await fetch("/api/admin/admissions/" + encodeURIComponent(id) + "/payment-status", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status })
+          });
+          const result = await response.json().catch(() => ({}));
+          if (response.status === 401 || response.status === 503) {
+            location.href = "/admin/login";
+            return;
+          }
+          if (!response.ok) throw new Error(result.error || "Unable to update payment status.");
+          document.getElementById("status").textContent = result.message || "Payment status updated.";
+          await loadData();
+        } catch (error) {
+          document.getElementById("status").textContent = error.message;
+          buttons.forEach(b => b.disabled = false);
+        }
+      }
+
+      function exportCsv() {
+        const cols = state.tab === "admissions" ? admissionCols : enquiryCols;
+        const rows = state[state.tab];
+        const csv = [
+          cols.map(c => c[1]),
+          ...rows.map(r => cols.map(c => r[c[0]] ?? ""))
+        ].map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(","))
+          .join(String.fromCharCode(13, 10));
+
+        const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "bcit-" + state.tab + "-" + new Date().toISOString().slice(0, 10) + ".csv";
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      let bcitToastTimer;
+      const pmsg = t => {
+        window.__bcitManualNoticeVersion = (window.__bcitManualNoticeVersion || 0) + 1;
+        const el = document.getElementById("bcitToast");
+        if (!el) return;
+        let msg = String(t || "Action completed.");
+        if (/https?:\/\/|\/api\/|traceback|sqlite|sqlalchemy|typeerror|referenceerror|stack/i.test(msg)) {
+          msg = "The action could not be completed. Please try again.";
+        }
+        el.textContent = msg;
+        el.classList.toggle("error", /error|failed|invalid|cannot|could not|must |not found|expired|select /i.test(msg));
+        el.classList.add("show");
+        clearTimeout(bcitToastTimer);
+        bcitToastTimer = setTimeout(() => el.classList.remove("show"), 5000);
+      };
+
+
+      /* BCIT unified operation feedback: success/error, duplicate-submit guard and refresh signal. */
+      (function () {
+          if (window.__bcitOperationFeedbackInstalled) return;
+          window.__bcitOperationFeedbackInstalled = true;
+          let noticeVersion = Number(window.__bcitManualNoticeVersion || 0);
+          let lastSubmitter = null;
+          const originalFetch = window.fetch.bind(window);
+          function currentNoticeVersion() {
+              return Math.max(noticeVersion, Number(window.__bcitManualNoticeVersion || 0));
+          }
+
+          function notify(message, type) {
+              if (typeof window.showBCITToast === 'function') window.showBCITToast(message, type);
+              else if (typeof window.showToast === 'function') window.showToast(message, type);
+              else {
+                  const el = document.getElementById('bcitToast');
+                  if (el) {
+                      el.textContent = message;
+                      el.classList.toggle('error', type === 'error');
+                      el.classList.add('show');
+                      clearTimeout(window.__bcitGenericToastTimer);
+                      window.__bcitGenericToastTimer = setTimeout(() => el.classList.remove('show'), 4000);
+                  }
+              }
+          }
+
+          ['showBCITToast', 'showToast'].forEach(name => {
+              if (typeof window[name] !== 'function') return;
+              const original = window[name];
+              window[name] = function () {
+                  noticeVersion++;
+                  window.__bcitManualNoticeVersion = noticeVersion;
+                  return original.apply(this, arguments);
+              };
+          });
+
+          document.addEventListener('click', function (event) {
+              const button = event.target && event.target.closest
+                  ? event.target.closest('button, input[type="submit"], input[type="button"]') : null;
+              if (button && !button.disabled) lastSubmitter = button;
+          }, true);
+          document.addEventListener('submit', function (event) {
+              if (event.submitter) lastSubmitter = event.submitter;
+          }, true);
+
+          window.fetch = async function (input, init) {
+              const url = typeof input === 'string' ? input : (input && input.url) || '';
+              const method = String((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+              const mutating = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+              const excluded = /\/api\/(?:assistant|ai)(?:\/|$)/i.test(url) || /\/api\/(?:student\/)?ai-assistant(?:\/|\?|$)/i.test(url) ||
+                  /\/api\/student\/online-exams\/[^/]+\/(answers|violation)(\/|$)/i.test(url) ||
+                  /\/api\/student\/login(?:\?|$)/i.test(url);
+              if (!mutating || excluded) {
+                  if (method === 'GET' && /\/api\//i.test(url) && !(init && init.cache)) {
+                      return originalFetch(input, Object.assign({}, init || {}, { cache: 'no-store' }));
+                  }
+                  return originalFetch(input, init);
+              }
+
+              const before = currentNoticeVersion();
+              const button = lastSubmitter && document.contains(lastSubmitter) ? lastSubmitter :
+                  (document.activeElement && document.activeElement.matches &&
+                   document.activeElement.matches('button, input[type="submit"]') ? document.activeElement : null);
+              const wasDisabled = !!(button && button.disabled);
+              if (button && !wasDisabled) {
+                  button.disabled = true;
+                  button.setAttribute('aria-busy', 'true');
+              }
+
+              try {
+                  const response = await originalFetch(input, init);
+                  if (response.ok) {
+                      window.dispatchEvent(new CustomEvent('bcit:data-changed', { detail: { method: method } }));
+                      setTimeout(() => {
+                          if (currentNoticeVersion() === before) notify('Changes saved successfully.', 'success');
+                      }, 120);
+                  } else {
+                      setTimeout(() => {
+                          if (currentNoticeVersion() === before) notify('The action could not be completed. Please try again.', 'error');
+                      }, 120);
+                  }
+                  return response;
+              } catch (error) {
+                  setTimeout(() => {
+                      if (currentNoticeVersion() === before) notify('The action could not be completed. Please try again.', 'error');
+                  }, 120);
+                  throw error;
+              } finally {
+                  if (button && !wasDisabled) {
+                      button.disabled = false;
+                      button.removeAttribute('aria-busy');
+                  }
+                  if (lastSubmitter === button) lastSubmitter = null;
+              }
+          };
+
+          window.addEventListener('unhandledrejection', function (event) {
+              notify('The action could not be completed. Please try again.', 'error');
+          });
+      })();
+
+      async function pjson(url, opts = {}) {
+        const r = await fetch(url, opts);
+        const j = await r.json().catch(() => ({}));
+        if (r.status === 401) {
+          location.href = "/admin/login";
+          throw Error("Admin session expired");
+        }
+        if (!r.ok) throw Error(j.error || "Request failed");
+        return j;
+      }
+
+      function ptable(rows, cols) {
+        return '<div class="tablebox"><table><thead><tr>' +
+          cols.map(x => "<th>" + esc(x[1]) + "</th>").join("") +
+          "</tr></thead><tbody>" +
+          rows.map(r => "<tr>" + cols.map(x => "<td>" + esc(r[x[0]] ?? "—") + "</td>").join("") + "</tr>").join("") +
+          "</tbody></table></div>";
+      }
+
+      document.querySelectorAll("[data-pt]").forEach(b => {
+        b.onclick = () => {
+          document.querySelectorAll("[data-pt]").forEach(x => x.classList.toggle("active", x === b));
+          document.querySelectorAll(".pt-panel").forEach(x => x.hidden = x.id !== "pt-" + b.dataset.pt);
+
+          const loaders = {
+            students: loadPortalStudents,
+            passwords: loadPasswordStudents,
+            batches: loadBatchSetup,
+            verify: loadPendingPayments,
+            receipts: loadAllReceipts,
+            attendance: () => { loadBatchSetup(); loadAttendance(); },
+            exams: loadExams,
+            materials: loadLearningContent,
+            assignments: loadLearningContent,
+            submissions: loadSubmissions,
+            due: loadDue
+          };
+          loaders[b.dataset.pt]?.();
+        };
+      });
+
+      async function loadPortalStudents() {
+        try {
+          const rows = await pjson("/api/admin/portal/students");
+          const q = (document.getElementById("portalStudentSearch")?.value || "").toLowerCase();
+          document.getElementById("portalStudentsRows").innerHTML =
+            rows.filter(r => [r.student_name, r.student_code, r.course, String(r.id)].join(" ").toLowerCase().includes(q))
+              .map(r => `<tr><td>${esc(r.student_code || r.id)}</td><td>${esc(r.student_name)}</td><td>${esc(r.course)}</td><td>₹${Number(r.pending_fee || 0).toLocaleString("en-IN")}</td><td>${r.student_deleted ? "Deleted" : r.student_active ? "Active" : "Inactive"}</td><td><button onclick="editPortalStudent(${r.id})">Edit</button> <button onclick="togglePortalStudent(${r.id},${r.student_active ? 0 : 1})">${r.student_active ? "Deactivate" : "Activate"}</button> <button onclick="deletePortalStudent(${r.id},0)">Permanently Delete</button></td></tr>`)
+              .join("") || '<tr><td colspan="6">No students found.</td></tr>';
+        } catch (e) { pmsg(e.message); }
+      }
+
+      document.getElementById("portalStudentSearch")?.addEventListener("input", loadPortalStudents);
+
+      async function editPortalStudent(id) {
+        try {
+          const rows = await pjson("/api/admin/portal/students");
+          const r = rows.find(x => x.id === id);
+          if (!r) return;
+          const value = prompt("Enter the new Student ID:", r.student_code || "");
+          if (value === null) return;
+          if (!value.trim()) { pmsg("Student ID cannot be blank."); return; }
+          await pjson("/api/admin/portal/students/" + id, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_code: value })
+          });
+          pmsg("Student ID updated successfully.");
+          loadPortalStudents();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function togglePortalStudent(id, v) {
+        try {
+          await pjson("/api/admin/portal/students/" + id, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_active: !!v })
+          });
+          loadPortalStudents();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function deletePortalStudent(id, restore) {
+        if (restore) {
+          if (!confirm("Restore this student?")) return;
+          try {
+            await pjson("/api/admin/portal/students/" + id + "/restore", { method: "POST" });
+            loadPortalStudents();
+          } catch (e) { pmsg(e.message); }
+          return;
+        }
+        if (!confirm("PERMANENTLY DELETE this student and all linked records? This cannot be undone.")) return;
+        try {
+          await pjson("/api/admin/portal/students/" + id + "/permanent-delete", { method: "DELETE" });
+          pmsg("Student permanently deleted.");
+          loadPortalStudents();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      window.pendingPaymentData = [];
+
+      async function loadPendingPayments() {
+        try {
+          window.pendingPaymentData = await pjson("/api/admin/portal/payments");
+          renderPendingPayments();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      function clearUpiStudentFilter() {
+        document.getElementById("upiStudentIdFilter").value = "";
+        renderPendingPayments();
+      }
+
+      function renderPendingPayments() {
+        const q = (document.getElementById("upiStudentIdFilter")?.value || "").trim().toLowerCase();
+        const all = window.pendingPaymentData || [];
+        const rows = all.filter(r => String(r.student_code || r.admission_id).toLowerCase().includes(q));
+        const amount = rows.reduce((n, r) => n + Number(r.amount || 0), 0);
+
+        document.getElementById("upiVerifySummary").innerHTML =
+          `<span class="verify-chip">Pending students: <b>${rows.length}</b></span><span class="verify-chip">Payment amount: <b>₹${amount.toLocaleString("en-IN")}</b></span><span class="verify-chip">Showing: <b>${q ? "Filtered" : "All Student IDs"}</b></span>`;
+
+        document.getElementById("pendingPaymentRows").innerHTML =
+          rows.map(r => `<tr><td class="upi-student-cell"><b>${esc(r.student_name)}</b><br><small>Student ID: ${esc(r.student_code || r.admission_id)}</small></td><td class="upi-amount-cell">₹${Number(r.amount || 0).toLocaleString("en-IN")}</td><td class="upi-balance-cell">₹${Number(r.pending_fee || 0).toLocaleString("en-IN")}</td><td class="upi-details-cell"><input id="utr-${r.admission_id}" value="${esc(r.reference || "")}" placeholder="Enter UTR"><input id="amount-${r.admission_id}" type="number" min="1" max="${Number(r.pending_fee || 0)}" value="${Number(r.amount || r.pending_fee || 0)}" placeholder="Paid amount"></td><td class="upi-datetime-cell"><span>${esc(r.payment_datetime || r.payment_date || "Not submitted")}</span>${r.proof_file ? `<a href="/portal-files/${encodeURIComponent(r.proof_file)}" target="_blank" rel="noopener">View proof</a>` : ""}</td><td class="upi-action-cell"><button onclick="verifyPortalPayment('${esc(r.student_code || r.admission_id)}',${r.admission_id},${r.payment_id || "null"})">Mark Verified</button></td></tr>`).join("") ||
+          `<tr><td colspan="6" class="empty">${q ? "No pending payment found for this Student ID." : "No student has pending UPI payments."}</td></tr>`;
+      }
+
+      async function verifyPortalPayment(studentId, admissionId, paymentId) {
+        const utr = document.getElementById("utr-" + admissionId)?.value.trim();
+        const amount = document.getElementById("amount-" + admissionId)?.value;
+        if (!utr || !amount) { pmsg("Please enter the UTR and paid amount."); return; }
+        if (!confirm("Have you verified the UTR and payment proof?")) return;
+        try {
+          const j = await pjson("/api/admin/portal/payments/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: studentId, amount, utr, payment_id: paymentId })
+          });
+          pmsg(j.message + " " + j.receipt_url);
+          loadPendingPayments();
+          loadPortalStudents();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      document.getElementById("offlineFeeForm")?.addEventListener("submit", async e => {
+        e.preventDefault();
+        const form = e.target;
+        const d = Object.fromEntries(new FormData(form));
+        const submit = form.querySelector('button[type="submit"]');
+        submit.disabled = true;
+        try {
+          await pjson("/api/admin/portal/students/" + encodeURIComponent(d.student_id) + "/fees", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(d)
+          });
+          pmsg("Fee entry added successfully.");
+          form.reset();
+          form.querySelector('[name="student_id"]').focus();
+          loadPortalStudents();
+        } catch (x) { pmsg(x.message); }
+        finally { submit.disabled = false; }
+      });
+
+      let activeAttendanceBatch = "";
+      window.batchStudentData = [];
+      window.batchData = [];
+
+      async function toggleBatchStudentPicker() {
+        const f = document.getElementById("batchForm");
+        f.hidden = !f.hidden;
+        if (!f.hidden) {
+          if (!window.batchStudentData.length)
+            window.batchStudentData = await pjson("/api/admin/portal/students");
+          renderBatchStudentChoices();
+          document.getElementById("batchName").focus();
+        }
+      }
+
+      function closeBatchPicker() {
+        document.getElementById("batchForm").hidden = true;
+        document.getElementById("batchName").value = "";
+        document.getElementById("batchStudentSearch").value = "";
+        document.querySelectorAll(".batchStudent").forEach(x => x.checked = false);
+        limitBatchSelection();
+      }
+
+      function filterBatchStudentChoices() {
+        const q = (document.getElementById("batchStudentSearch")?.value || "").toLowerCase();
+        document.querySelectorAll(".student-choice").forEach(el => el.hidden = !el.dataset.search.includes(q));
+      }
+
+      function renderBatchStudentChoices() {
+        const rows = window.batchStudentData.filter(x => x.student_active && !x.student_deleted);
+        document.getElementById("batchStudentChoices").innerHTML =
+          rows.map(x => `<label class="student-choice" data-search="${esc((x.student_code || x.id) + " " + x.student_name).toLowerCase()}"><input type="checkbox" class="batchStudent" value="${x.id}" onchange="limitBatchSelection()"><span><b>${esc(x.student_name)}</b><small>Student ID: ${esc(x.student_code || x.id)}</small></span></label>`).join("") ||
+          '<p class="empty">No active registered students found.</p>';
+        limitBatchSelection();
+      }
+
+      function limitBatchSelection() {
+        const checks = [...document.querySelectorAll(".batchStudent")];
+        const chosen = checks.filter(x => x.checked);
+        checks.forEach(x => x.disabled = !x.checked && chosen.length >= 15);
+        const c = document.getElementById("batchSelectedCount");
+        if (c) c.textContent = chosen.length + " / 15 selected";
+      }
+
+      async function loadBatchSetup() {
+        try {
+          const [students, batches] = await Promise.all([
+            pjson("/api/admin/portal/students"),
+            pjson("/api/admin/portal/attendance/batches")
+          ]);
+          window.batchStudentData = students;
+          window.batchData = batches;
+          document.getElementById("attendanceBatch").innerHTML =
+            '<option value="">All students</option>' +
+            batches.map(b => `<option value="${b.id}">${esc(b.name)} (${b.student_count})</option>`).join("");
+
+          document.getElementById("batchRegisteredCount").textContent =
+            students.filter(x => x.student_active && !x.student_deleted).length;
+          document.getElementById("batchTotalCount").textContent = batches.length;
+          document.getElementById("batchAssignedCount").textContent =
+            batches.reduce((n, b) => n + Number(b.student_count || 0), 0);
+
+          document.getElementById("createdBatches").innerHTML =
+            batches.map(b => {
+              const count = Number(b.student_count || 0);
+              const pct = Math.min(100, (count / 15) * 100);
+              return `<article class="batch-card"><div class="section-kicker">Attendance group · #${b.id}</div><h4>${esc(b.name)}</h4><div class="batch-meta">${count} of 15 students allocated</div><div class="capacity-track"><span style="width:${pct}%"></span></div><div class="batch-meta">${Math.max(15 - count, 0)} seats available</div><div class="batch-actions"><button type="button" onclick="openBatchAttendance(${b.id})">Take Attendance</button><button type="button" onclick="addStudentToBatch(${b.id})" ${count >= 15 ? "disabled" : ""}>＋ Add Student</button><button type="button" onclick="removeStudentFromBatch(${b.id})" ${count === 0 ? "disabled" : ""}>Remove Student</button><button type="button" onclick="deleteAttendanceBatch(${b.id})">Delete Batch</button></div></article>`;
+            }).join("") ||
+            '<div class="batch-card empty">No batches created yet. Create your first batch to get started.</div>';
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function openBatchAttendance(id) {
+        document.querySelector('[data-pt="attendance"]').click();
+        document.getElementById("attendanceBatch").value = String(id);
+        await loadAttendance();
+      }
+
+      async function addStudentToBatch(id) {
+        const sid = prompt("Enter Student ID to add (batch limit: 15):");
+        if (!sid) return;
+        try {
+          await pjson(`/api/admin/portal/attendance/batches/${id}/students`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: sid.trim() })
+          });
+          pmsg("Student added to batch.");
+          await loadBatchSetup();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function removeStudentFromBatch(id) {
+        const sid = prompt("Enter Student ID to remove from this batch:");
+        if (!sid) return;
+        if (!confirm(`Remove student ${sid} from this batch?`)) return;
+        try {
+          await pjson(`/api/admin/portal/attendance/batches/${id}/students`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ student_id: sid.trim() })
+          });
+          pmsg("Student removed from batch.");
+          await loadBatchSetup();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function deleteAttendanceBatch(id) {
+        if (!confirm("Delete this attendance batch? Its student allocation will be removed; existing attendance records will remain.")) return;
+        try {
+          await pjson(`/api/admin/portal/attendance/batches/${id}`, { method: "DELETE" });
+          pmsg("Attendance batch deleted.");
+          await loadBatchSetup();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      document.getElementById("batchForm")?.addEventListener("submit", async e => {
+        e.preventDefault();
+        const selected = [...document.querySelectorAll(".batchStudent:checked")].map(x => Number(x.value));
+        if (!selected.length || selected.length > 15) {
+          pmsg("Select 1 to 15 students for one batch.");
+          return;
+        }
+        try {
+          await pjson("/api/admin/portal/attendance/batches", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: document.getElementById("batchName").value,
+              student_ids: selected
+            })
+          });
+          pmsg("Attendance batch created.");
+          closeBatchPicker();
+          await loadBatchSetup();
+        } catch (e) { pmsg(e.message); }
+      });
+
+      async function loadPasswordStudents() {
+        try {
+          const rows = await pjson("/api/admin/portal/students");
+          window.passwordStudentData = rows;
+          renderPasswordStudents();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      function renderPasswordStudents() {
+        const q = (document.getElementById("passwordStudentSearch")?.value || "").toLowerCase();
+        const rows = (window.passwordStudentData || []).filter(r =>
+          [r.student_code, r.student_name].join(" ").toLowerCase().includes(q)
+        );
+        document.getElementById("passwordStudentRows").innerHTML =
+          rows.map(r => `<tr><td>${esc(r.student_code || r.id)}</td><td>${esc(r.student_name)}</td><td>${r.has_password ? "Password assigned" : "Not assigned"}</td><td><button type="button" onclick="assignStudentPassword(${r.id})">${r.has_password ? "Change Password" : "Assign Password"}</button></td></tr>`).join("") ||
+          '<tr><td colspan="4">No students found.</td></tr>';
+      }
+
+      async function assignStudentPassword(id) {
+        const password = prompt("Set student login password (minimum 8 characters):");
+        if (password === null) return;
+        if (password.length < 8) { pmsg("Password must be at least 8 characters."); return; }
+        try {
+          const j = await pjson("/api/admin/portal/students/" + id, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password })
+          });
+          pmsg(j.message || "Student password updated.");
+          await loadPasswordStudents();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function markOneAttendance(studentId, status) {
+        try {
+          await pjson("/api/admin/portal/attendance", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              student_id: studentId,
+              status,
+              batch_id: activeAttendanceBatch || null
+            })
+          });
+          loadAttendance();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function loadAttendance() {
+        try {
+          activeAttendanceBatch = document.getElementById("attendanceBatch")?.value || "";
+          const rows = await pjson("/api/admin/portal/attendance" +
+            (activeAttendanceBatch ? "?batch_id=" + activeAttendanceBatch : ""));
+          const present = rows.filter(r => r.status === "present").length;
+          const absent = rows.filter(r => r.status === "absent").length;
+          const unmarked = rows.length - present - absent;
+
+          document.getElementById("attendanceToday").textContent =
+            "Attendance date: " + (rows[0]?.attendance_date || new Date().toLocaleDateString());
+
+          document.getElementById("attendanceReport").innerHTML =
+            `<div class="attendance-summary"><div class="batch-stat"><small>TOTAL STUDENTS</small><strong>${rows.length}</strong></div><div class="batch-stat"><small>PRESENT</small><strong>${present}</strong></div><div class="batch-stat"><small>ABSENT / NOT MARKED</small><strong>${absent} / ${unmarked}</strong></div></div><div class="tablebox"><table><thead><tr><th>Student ID</th><th>Name</th><th>Attendance Status</th><th>Attendance Score</th></tr></thead><tbody>${rows.map(r => `<tr><td><b>${esc(r.student_code || r.id)}</b></td><td>${esc(r.student_name)}</td><td><button onclick="markOneAttendance('${esc(r.student_code || r.id)}','present')">Present</button> <button onclick="markOneAttendance('${esc(r.student_code || r.id)}','absent')">Absent</button> ${r.status ? "<b>" + esc(r.status) + "</b>" : "Not marked"}</td><td>${esc(r.attendance_percent)}%</td></tr>`).join("") || '<tr><td colspan="4" class="empty">No students in this attendance view.</td></tr>'}</tbody></table></div>`;
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function loadAllReceipts() {
+        try {
+          const rows = await pjson("/api/admin/portal/receipts");
+          document.getElementById("allReceipts").innerHTML =
+            '<div class="tablebox"><table><thead><tr><th>Select</th><th>Student</th><th>Student ID</th><th>Amount ₹</th><th>Mode</th><th>Payment Date</th><th>Status</th><th>Single Receipt</th></tr></thead><tbody>' +
+            rows.map(r => `<tr><td>${r.status === "verified" ? `<input class="twoReceiptPick" type="checkbox" value="${r.id}" data-student="${esc(r.admission_id)}">` : "—"}</td><td>${esc(r.student_name)}</td><td>${esc(r.student_code)}</td><td>${esc(r.amount)}</td><td>${esc(r.mode)}</td><td>${esc(r.payment_datetime || r.payment_date)}</td><td>${esc(r.status)}</td><td>${r.status === "verified" ? `<a href="/api/admin/portal/receipt/${encodeURIComponent(r.receipt_token)}.pdf" target="_blank">Download PDF</a>` : "Pending"}</td></tr>`).join("") +
+            "</tbody></table></div>";
+        } catch (e) { pmsg(e.message); }
+      }
+
+      function printSelectedTwoReceipts() {
+        const picks = [...document.querySelectorAll(".twoReceiptPick:checked")];
+        if (picks.length !== 2) {
+          pmsg("A4 print ke liye exactly 2 verified receipts select karein.");
+          return;
+        }
+        if (picks[0].dataset.student === picks[1].dataset.student) {
+          pmsg("Do alag students ke receipts select karein.");
+          return;
+        }
+        window.open("/api/admin/portal/receipts/print-two.pdf?ids=" +
+          picks.map(x => encodeURIComponent(x.value)).join(","), "_blank");
+      }
+
+      document.getElementById("materialForm")?.addEventListener("submit", async e => {
+        e.preventDefault();
+        const form = e.target;
+        const files = [...form.querySelector("[name=file]").files];
+        const submit = form.querySelector('button[type="submit"]');
+
+        if (files.some(f => f.size > 20 * 1024 * 1024)) {
+          pmsg("Each study material file must not exceed 20 MB.");
+          return;
+        }
+        if (!files.length && !(form.querySelector("[name=url]").value || "").trim()) {
+          pmsg("Kam se kam ek file select karein ya video URL dein.");
+          return;
+        }
+
+        submit.disabled = true;
+        try {
+          let saved = 0;
+          const baseTitle = (form.querySelector("[name=title]").value || "").trim();
+          const common = new FormData(form);
+          common.delete("file");
+
+          if (files.length) {
+            for (const file of files) {
+              const data = new FormData();
+              for (const [k, v] of common.entries()) data.append(k, v);
+              const filename = file.name.replace(/\.[^.]+$/, "");
+              data.set("title", files.length > 1
+                ? (baseTitle ? baseTitle + " - " + filename : filename)
+                : (baseTitle || filename));
+              data.append("file", file);
+              await pjson("/api/admin/portal/materials", { method: "POST", body: data });
+              saved++;
+            }
+          } else {
+            await pjson("/api/admin/portal/materials", { method: "POST", body: common });
+            saved++;
+          }
+          pmsg(saved + " material(s) added successfully.");
+          form.reset();
+          await loadLearningContent();
+        } catch (x) { pmsg(x.message); }
+        finally { submit.disabled = false; }
+      });
+
+      let onlineQuestions = [];
+
+      function renderOnlineQuestions() {
+        const box = document.getElementById("onlineQuestionRows");
+        box.innerHTML = onlineQuestions.map((q, i) =>
+          '<article class="online-question-card" id="online-question-' + i + '">' +
+          '<div class="online-question-head"><b>Question ' + (i + 1) +
+          '</b><button class="online-remove-btn" type="button" onclick="removeOnlineQuestion(' + i +
+          ')">Remove</button></div>' +
+          '<label class="online-question-prompt">Question text<textarea data-q="' + i +
+          '" data-field="question" placeholder="Write question" required>' + esc(q.question) +
+          '</textarea></label><div class="online-options-grid">' +
+          q.options.map((o, j) => '<label class="online-option-field">Option ' + (j + 1) +
+          '<input data-q="' + i + '" data-option="' + j + '" value="' + esc(o) +
+          '" placeholder="Enter option ' + (j + 1) + '" required></label>').join("") +
+          '</div><div class="online-question-meta"><label>Correct answer<select data-q="' + i +
+          '" data-field="correct_option">' + q.options.map((o, j) => '<option value="' + j + '" ' +
+          (q.correct_option === j ? "selected" : "") + '>Option ' + (j + 1) +
+          '</option>').join("") + '</select></label><label>Marks<input data-q="' + i +
+          '" data-field="marks" type="number" min="0.1" step="0.1" value="' + q.marks +
+          '"></label></div><div class="online-question-actions"><button type="button" onclick="addOnlineQuestionAfter(' +
+          i + ')">＋ Add Question</button></div></article>'
+        ).join("");
+        document.getElementById("onlineQuestionCount").textContent =
+          onlineQuestions.length + " / 50 questions";
+      }
+
+      function makeBlankOnlineQuestion() {
+        return { question: "", options: ["", "", "", ""], correct_option: 0, marks: 1 };
+      }
+
+      function setOnlineQuestionCount() {
+        const input = document.getElementById("onlineQuestionTarget");
+        const count = Number(input?.value);
+        if (!Number.isInteger(count) || count < 1 || count > 50) {
+          pmsg("Choose a question count from 1 to 50.");
+          return;
+        }
+        while (onlineQuestions.length < count) onlineQuestions.push(makeBlankOnlineQuestion());
+        if (onlineQuestions.length > count) onlineQuestions = onlineQuestions.slice(0, count);
+        renderOnlineQuestions();
+        pmsg(count + " question fields ready.");
+      }
+
+      function addOnlineQuestion() { addOnlineQuestionAfter(onlineQuestions.length - 1); }
+
+      function addOnlineQuestionAfter(index) {
+        if (onlineQuestions.length >= 50) {
+          pmsg("Maximum 50 questions allowed.");
+          return;
+        }
+        const insertAt = Math.max(0, Math.min(onlineQuestions.length, index + 1));
+        onlineQuestions.splice(insertAt, 0, makeBlankOnlineQuestion());
+        document.getElementById("onlineQuestionTarget").value = onlineQuestions.length;
+        renderOnlineQuestions();
+        const newQuestion = document.getElementById("online-question-" + insertAt);
+        newQuestion?.scrollIntoView({ behavior: "smooth", block: "center" });
+        newQuestion?.querySelector("textarea")?.focus({ preventScroll: true });
+      }
+
+      function removeOnlineQuestion(i) {
+        onlineQuestions.splice(i, 1);
+        document.getElementById("onlineQuestionTarget").value = Math.max(1, onlineQuestions.length);
+        renderOnlineQuestions();
+      }
+
+      ["input", "change"].forEach(evt =>
+        document.getElementById("onlineQuestionRows")?.addEventListener(evt, e => {
+          const i = Number(e.target.dataset.q);
+          if (!Number.isInteger(i) || !onlineQuestions[i]) return;
+          if (e.target.dataset.option !== undefined)
+            onlineQuestions[i].options[Number(e.target.dataset.option)] = e.target.value;
+          else if (e.target.dataset.field)
+            onlineQuestions[i][e.target.dataset.field] =
+              e.target.dataset.field === "marks" ? Number(e.target.value) :
+              e.target.dataset.field === "correct_option" ? Number(e.target.value) :
+              e.target.value;
+        })
+      );
+
+      document.getElementById("examType")?.addEventListener("change", e => {
+        const on = e.target.value === "online";
+        document.getElementById("examDurationWrap").hidden = !on;
+        document.getElementById("onlineQuestionBuilder").hidden = !on;
+        if (on && !onlineQuestions.length) {
+          onlineQuestions = [makeBlankOnlineQuestion()];
+          renderOnlineQuestions();
+        }
+      });
+
+      document.getElementById("examForm")?.addEventListener("submit", async e => {
+        e.preventDefault();
+        const d = Object.fromEntries(new FormData(e.target));
+        if (d.exam_type === "online") {
+          d.questions = onlineQuestions;
+          if (!d.questions.length || d.questions.length > 50) {
+            pmsg("Add between 1 and 50 questions.");
+            return;
+          }
+          if (d.questions.some(q => !q.question.trim() || q.options.some(o => !o.trim()))) {
+            pmsg("Complete every question and all four options.");
+            return;
+          }
+        }
+        try {
+          const j = await pjson("/api/admin/portal/exams", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(d)
+          });
+          pmsg("Exam created. Exam ID: " + j.exam_id);
+          e.target.reset();
+          onlineQuestions = [];
+          document.getElementById("onlineQuestionTarget").value = 1;
+          renderOnlineQuestions();
+          document.getElementById("examDurationWrap").hidden = true;
+          document.getElementById("onlineQuestionBuilder").hidden = true;
+          await loadExams();
+        } catch (x) { pmsg(x.message); }
+      });
+
+      document.getElementById("marksForm")?.addEventListener("submit", async e => {
+        e.preventDefault();
+        const d = Object.fromEntries(new FormData(e.target));
+        try {
+          const j = await pjson("/api/admin/portal/exams/" + encodeURIComponent(d.exam_id) + "/marks", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(d)
+          });
+          pmsg(j.message);
+          await loadExams();
+        } catch (x) { pmsg(x.message); }
+      });
+
+      async function loadExams() {
+        try {
+          const j = await pjson("/api/admin/portal/exams");
+          document.getElementById("createdExamReport").innerHTML = j.exams.length
+            ? '<div class="tablebox"><table><thead><tr><th>Exam ID</th><th>Exam Title</th><th>Subject</th><th>Exam Date</th><th>Type</th><th>Maximum Marks</th><th>Pass Marks</th><th>Questions</th><th>Time (min)</th><th>Action</th></tr></thead><tbody>' +
+              j.exams.map(x => `<tr><td>${esc(x.exam_code || x.id)}</td><td>${esc(x.title)}</td><td>${esc(x.subject)}</td><td>${esc(x.exam_date || "—")}</td><td>${esc(x.exam_type || "Offline")}</td><td>${esc(x.max_marks)}</td><td>${esc(x.pass_marks)}</td><td>${esc(x.question_count || 0)}</td><td>${esc(x.duration_minutes || "—")}</td><td><button type="button" class="danger exam-action-delete" style="white-space:nowrap;overflow-wrap:normal;word-break:keep-all;width:max-content;min-width:104px;max-width:none;display:inline-flex;align-items:center;justify-content:center;" onclick="deleteExam('${esc(x.exam_code || x.id)}')">Delete Exam</button></td></tr>`).join("") +
+              "</tbody></table></div>"
+            : "<p>No exams created yet.</p>";
+
+          document.getElementById("examReport").innerHTML = j.marks.length
+            ? '<div class="tablebox"><table><thead><tr><th>Exam</th><th>Subject</th><th>Student</th><th>Student ID</th><th>Marks</th><th>Pass Marks</th><th>Action</th></tr></thead><tbody>' +
+              j.marks.map(m => `<tr><td>${esc(m.title)}</td><td>${esc(m.subject)}</td><td>${esc(m.student_name)}</td><td>${esc(m.student_code)}</td><td>${esc(m.marks)}</td><td>${esc(m.pass_marks)}</td><td><button type="button" class="danger exam-action-delete" style="white-space:nowrap;overflow-wrap:normal;word-break:keep-all;width:max-content;min-width:104px;max-width:none;display:inline-flex;align-items:center;justify-content:center;" onclick="deleteExamResult(${m.id}, '${m.result_type || 'offline'}')">Delete Result</button></td></tr>`).join("") +
+              "</tbody></table></div>"
+            : "<p>No student exam results submitted yet.</p>";
+          await loadExamViolations();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function loadExamViolations() {
+        const target = document.getElementById("examViolationReport");
+        if (!target) return;
+        try {
+          const j = await pjson("/api/admin/portal/exam-violations");
+          target.innerHTML = (j.violations || []).length
+            ? '<div class="tablebox"><table><thead><tr><th>Student Name</th><th>Student ID</th><th>Violation Date &amp; Time (IST)</th><th>Exam ID</th><th>Exam Name</th><th>Violation</th></tr></thead><tbody>' +
+              j.violations.map(v => `<tr><td>${esc(v.student_name)}</td><td>${esc(v.student_code)}</td><td>${esc(v.violation_time_ist)}</td><td>${esc(v.exam_code)}</td><td>${esc(v.exam_name)}</td><td>${esc(({fullscreen_exit:"Full Screen Exited",tab_switch:"Tab / App Switch",window_blur:"Window Focus Lost"})[v.violation_type] || v.violation_type)}</td></tr>`).join("") +
+              '</tbody></table></div>'
+            : '<p class="empty">No online exam violations recorded yet.</p>';
+        } catch (e) {
+          target.innerHTML = '<p class="empty">Could not load violation report: ' + esc(e.message) + '</p>';
+        }
+      }
+
+      async function deleteAllExamViolations() {
+        if (!confirm("Permanently delete ALL online exam violation reports? Student records, exams, attempts and results will not be deleted. This action cannot be undone.")) return;
+        try {
+          const j = await pjson("/api/admin/portal/exam-violations", { method: "DELETE" });
+          pmsg(j.message || "All violation reports permanently deleted.");
+          await loadExamViolations();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function deleteAllExamResults() {
+        if (!confirm("Delete ALL student exam results for every exam? This cannot be undone. The created exams will remain.")) return;
+        try {
+          const j = await pjson("/api/admin/portal/exam-results", { method: "DELETE" });
+          pmsg(j.message || "All student results deleted.");
+          await loadExams();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function deleteExamResult(id, resultType = "offline") {
+        if (!confirm("Delete this student exam submission/result permanently?")) return;
+        try {
+          const type = resultType === "online" ? "online" : "offline";
+          const j = await pjson("/api/admin/portal/exam-results/" + id + "?type=" + type, { method: "DELETE" });
+          pmsg(j.message || "Exam result deleted.");
+          await loadExams();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function deleteExam(code) {
+        if (!confirm("Delete this exam and all student results linked to it? This cannot be undone.")) return;
+        try {
+          const j = await pjson("/api/admin/portal/exams/" + encodeURIComponent(code), { method: "DELETE" });
+          pmsg(j.message || "Exam deleted.");
+          await loadExams();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function uploadPortalForm(e, url) {
+        e.preventDefault();
+        try {
+          const j = await pjson(url, { method: "POST", body: new FormData(e.target) });
+          pmsg(j.message || "Saved");
+          e.target.reset();
+          await loadLearningContent();
+        } catch (x) { pmsg(x.message); }
+      }
+
+      async function loadLearningContent() {
+        try {
+          const j = await pjson("/api/admin/portal/learning-content");
+          document.getElementById("adminMaterialList").innerHTML =
+            j.materials.map(m =>
+              `<div class="item"><b>${esc(m.title)}</b> · ${esc(m.kind)} · ${esc(m.course || "All courses")} ${m.file_name ? `· <a href="/portal-files/${encodeURIComponent(m.file_name)}" target="_blank">Open file</a>` : ""} ${m.external_url ? `· <a href="${esc(m.external_url)}" target="_blank">Open link</a>` : ""}<button type="button" onclick="deleteLearningItem('materials',${m.id})">Delete</button></div>`
+            ).join("") || "No study materials added yet.";
+
+          document.getElementById("adminAssignmentList").innerHTML =
+            j.assignments.map(a =>
+              `<div class="item"><b>${esc(a.title)}</b> · ${esc(a.course || "All courses")} · Deadline: ${esc(a.due_date || "—")} ${a.file_name ? `· <a href="/portal-files/${encodeURIComponent(a.file_name)}" target="_blank">View Question File</a>` : "· <b>Question file not uploaded</b>"}<form class="toolbar" style="margin-top:8px" onsubmit="uploadAssignmentQuestion(event,${a.id})"><label>${a.file_name ? "Replace question file" : "Add question file"} <input type="file" name="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png" required><small>Maximum file size: 5 MB</small></label><button type="submit">Save Question File</button></form><button type="button" onclick="deleteLearningItem('assignments',${a.id})">Delete</button></div>`
+            ).join("") || "No assignments added yet.";
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function deleteLearningItem(type, id) {
+        const label = type === "materials" ? "study material" : "assignment";
+        if (!confirm("Delete this " + label + "? Students will no longer see it." +
+          (type === "assignments" ? " Submitted work records for this assignment will also be removed." : ""))) return;
+        try {
+          const j = await pjson("/api/admin/portal/" + type + "/" + id, { method: "DELETE" });
+          pmsg(j.message);
+          await loadLearningContent();
+        } catch (e) { pmsg(e.message); }
+      }
+
+      document.getElementById("assignmentForm")?.addEventListener("submit", e => {
+        const file = e.target.querySelector('input[type="file"]')?.files?.[0];
+        if (!file) {
+          e.preventDefault();
+          pmsg("Please choose an assignment question file.");
+          return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          e.preventDefault();
+          pmsg("Assignment file must not exceed 5 MB.");
+          return;
+        }
+        uploadPortalForm(e, "/api/admin/portal/assignments");
+      });
+
+      document.getElementById("assignmentForm")?.querySelector('input[type="file"]')?.addEventListener("change", function() {
+        const file = this.files?.[0];
+        if (file && file.size > 5 * 1024 * 1024) {
+          pmsg("File too large! Assignment file must not exceed 5 MB.");
+          this.value = "";
+        }
+      });
+
+      async function uploadAssignmentQuestion(e, id) {
+        e.preventDefault();
+        const form = e.target;
+        const file = form.querySelector('input[type=file]')?.files?.[0];
+        if (!file) { pmsg("Please choose an assignment file."); return; }
+        if (file.size > 5 * 1024 * 1024) {
+          pmsg("Assignment file must not exceed 5 MB.");
+          return;
+        }
+        try {
+          const j = await pjson("/api/admin/portal/assignments/" + id + "/question", {
+            method: "POST",
+            body: new FormData(form)
+          });
+          pmsg(j.message || "Assignment question file saved.");
+          await loadLearningContent();
+        } catch (x) { pmsg(x.message); }
+      }
+
+      async function loadSubmissions() {
+        try {
+          const rows = await pjson("/api/admin/portal/submissions");
+          document.getElementById("submissionReport").innerHTML = rows.length
+            ? '<div class="tablebox"><table><thead><tr><th>Student ID</th><th>Student Name</th><th>Course</th><th>Assignment</th><th>Uploaded File</th><th>Submitted At</th><th>Download</th></tr></thead><tbody>' +
+              rows.map(r =>
+                `<tr><td>${esc(r.student_code || "—")}</td><td>${esc(r.student_name || "—")}</td><td>${esc(r.course || "—")}</td><td>${esc(r.assignment_title || "—")}</td><td>${esc(r.original_name || "Uploaded file")}</td><td>${esc(r.submitted_at || "—")}</td><td><a href="/api/admin/portal/submissions/${r.id}/download" target="_blank" rel="noopener">Download Student Work</a></td></tr>`
+              ).join("") +
+              "</tbody></table></div>"
+            : "<p>No student assignment submissions received yet.</p>";
+        } catch (e) { pmsg(e.message); }
+      }
+
+      async function loadDue() {
+        try {
+          const rows = await pjson("/api/admin/portal/due");
+          document.getElementById("dueReport").innerHTML = rows.length
+            ? ptable(rows, [
+                ["student_name", "Student"],
+                ["mobile", "Mobile"],
+                ["course", "Course"],
+                ["pending", "Remaining Fee"]
+              ])
+            : '<p class="empty">No students have pending fees.</p>';
+        } catch (e) { pmsg(e.message); }
+      }
+
+      loadData();
+    </script>
+  </body>
+</html>
