@@ -807,6 +807,36 @@ main{padding:24px 3%!important}
 #pt-verify .upi-payment-table .upi-datetime-cell a{display:inline-block;margin-top:7px}
 #pt-verify .upi-payment-table .upi-action-cell button{white-space:normal;min-width:96px;max-width:100%;line-height:1.35}
 
+
+
+/* Main Admin Dashboard tabs: one horizontal row with swipe on mobile. */
+@media (max-width: 650px) {
+  main.wrap > nav.tabs {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    padding: 8px 2px 12px;
+  }
+  main.wrap > nav.tabs > button.tab {
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+  }
+}
 </style>
   </head>
 
